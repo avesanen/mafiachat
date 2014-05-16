@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export GOPATH=`pwd`
+rm -rf pkg
+rm -rf bin
 go get mafiachat
 go build mafiachat
 go test mafiachat

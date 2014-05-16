@@ -26,13 +26,13 @@
         if (!msg.val()) {
             return false;
         }
-        conn.send(msg.val());
+        conn.send(JSON.stringify({msgType:"chat",data:{message:msg.val()}}));
         msg.val("");
         return false
     });
 
     if (window["WebSocket"]) {
-        conn = new WebSocket("ws://"+window.location.host+"/ws");
+        conn = new WebSocket("ws://"+window.location.host+window.location.pathname+"ws/");
         conn.onclose = function(evt) {
             appendLog($("<div><b>Connection closed.</b></div>"))
         }
