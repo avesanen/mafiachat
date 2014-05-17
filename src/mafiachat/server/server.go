@@ -9,6 +9,8 @@ import (
 	"net/http"
 )
 
+var gameList = make(map[string]*game)
+
 // Serve static files as requested
 func staticHandler(w http.ResponseWriter, r *http.Request) {
 	file := r.URL.Query().Get(":file")
@@ -63,19 +65,21 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c := newConnetion(ws)
+	p := newPlayer()
+	p.Connection = c
 
-	// Quick callback for testing
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log.Println("Recovered in f", r)
-			}
-		}()
-		for {
-			c.outbound <- <-c.inbound
-		}
-	}()
+	log.Println(gameList)
 
+	if _, ok := gameList[gameId]; ok {
+		gameList[gameId].addPlayer(p)
+		log.Println("exists")
+	} else {
+		g := newGame()
+		g.Id = gameId
+		gameList[g.Id] = g
+		g.addPlayer(p)
+		log.Println("not exists")
+	}
 	//hs.addConnection <- &Connection{ws: ws, hubId: hubId}
 }
 

@@ -16,8 +16,8 @@ const (
 // the websocket connection.
 type connection struct {
 	ws       *websocket.Conn
-	outbound chan string
-	inbound  chan string
+	Outbound chan string
+	Inbound  chan string
 }
 
 // Return a new connection with channels inited and reader/writer
@@ -26,8 +26,8 @@ type connection struct {
 func newConnetion(ws *websocket.Conn) *connection {
 	c := &connection{}
 	c.ws = ws
-	c.outbound = make(chan string)
-	c.inbound = make(chan string)
+	c.Outbound = make(chan string)
+	c.Inbound = make(chan string)
 	go c.reader()
 	go c.writer()
 	return c
@@ -42,7 +42,7 @@ func (c *connection) reader() {
 		log.Print("connection reader gorouting stopping.")
 		// Close in and outbound channels to message listening goroutines
 		// that this connection has closed
-		close(c.inbound)
+		close(c.Inbound)
 		c.ws.Close()
 	}()
 	c.ws.SetPongHandler(func(string) error { c.ws.SetReadDeadline(time.Now().Add(writeWait)); return nil })
@@ -52,7 +52,7 @@ func (c *connection) reader() {
 		if err != nil {
 			break
 		}
-		c.inbound <- string(message)
+		c.Inbound <- string(message)
 	}
 }
 
@@ -71,12 +71,12 @@ func (c *connection) writer() {
 	defer func() {
 		log.Print("connection writer gorouting stopping.")
 		ticker.Stop()
-		close(c.outbound)
+		close(c.Outbound)
 		c.ws.Close()
 	}()
 	for {
 		select {
-		case message, ok := <-c.outbound:
+		case message, ok := <-c.Outbound:
 			if !ok {
 				c.write(websocket.CloseMessage, []byte{})
 				log.Println("[connection.writePump] !ok.")
