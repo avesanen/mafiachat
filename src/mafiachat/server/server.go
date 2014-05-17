@@ -3,28 +3,57 @@ package server
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
-	"github.com/garyburd/go-websocket/websocket"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 )
 
-// ------------ main.go ------------
-func nodeWsHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	hubId := vars["hub"]
-	log.Print("Websocket request on '", hubId, "'.")
-	log.Print("REQUEST:", r)
+// Serve static files as requested
+func staticHandler(w http.ResponseWriter, r *http.Request) {
+	file := r.URL.Query().Get(":file")
+	http.ServeFile(w, r, "./www/"+file)
+}
 
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	// Don't redirect favicon.ico requests to random urls
+	if r.RequestURI == "/favicon.ico" {
+		http.Error(w, "Icon under construction :(", 404)
+		return
+	}
+
+	// Create random 8 byte hex string for the new game id
+	rndUrlBytes := make([]byte, 8)
+	n, err := rand.Read(rndUrlBytes)
+	if n != len(rndUrlBytes) || err != nil {
+		return
+	}
+	rndUrl := hex.EncodeToString(rndUrlBytes)
+
+	// Redirect browser to the new game's random url
+	log.Print("Request on index, generated url: '", rndUrl, "'.")
+	http.Redirect(w, r, "/g/"+rndUrl+"/", 303)
+}
+
+func websocketHandler(w http.ResponseWriter, r *http.Request) {
+	// Get gameId from mux vars
+	vars := mux.Vars(r)
+	gameId := vars["gameId"]
+	log.Print("New websocket request on '", gameId, "'.")
+
+	// Only get requests
 	if r.Method != "GET" {
 		return
 	}
+
+	// Force same origin policy
 	if r.Header.Get("Origin") != "http://"+r.Host {
 		http.Error(w, "Origin not allowed", 403)
 		return
 	}
-	ws, err := websocket.Upgrade(w, r.Header, nil, 1024, 1024)
+
+	// Try to init websocket connection
+	ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
 	if _, ok := err.(websocket.HandshakeError); ok {
 		http.Error(w, "Not a websocket handshake", 400)
 		return
@@ -33,63 +62,45 @@ func nodeWsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Server Error", 500)
 		return
 	}
-	hs.addConnection <- &Connection{ws: ws, hubId: hubId}
-}
+	c := newConnetion(ws)
 
-func hubHandler(w http.ResponseWriter, r *http.Request) {
-	if r.RequestURI == "/favicon.ico" {
-		http.Error(w, "Icon under construction :(", 404)
-		return
-	}
-	rndUrlBytes := make([]byte, 8)
-	n, err := rand.Read(rndUrlBytes)
-	if n != len(rndUrlBytes) || err != nil {
-		return
-	}
-	rndUrl := hex.EncodeToString(rndUrlBytes)
-	log.Print("Request on index, generated url: '", rndUrl, "'.")
-	http.Redirect(w, r, "/g/"+rndUrl+"/", 303)
-}
+	// Quick callback for testing
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Println("Recovered in f", r)
+			}
+		}()
+		for {
+			c.outbound <- <-c.inbound
+		}
+	}()
 
-func nodeHandler(w http.ResponseWriter, r *http.Request) {
-	file := r.URL.Query().Get(":file")
-	log.Println("nodeHandler")
-	log.Print("The whole request: ", r)
-	http.ServeFile(w, r, "./www/"+file)
+	//hs.addConnection <- &Connection{ws: ws, hubId: hubId}
 }
 
 func Init() {
-	fmt.Println("Roligo v0.0.1")
-	log.Println("Starting Roligo Web Server")
-	go hs.run()
+	log.Println("Starting MafiaChat Server")
 
+	// Set mux routes
 	r := mux.NewRouter()
 
-	r.Path("/g/{hub:[a-f0-9]{16}}/ws/").
-		HandlerFunc(nodeWsHandler).
-		Name("websocket")
-
-	r.Path("/g/{hub:[a-f0-9]{16}}/").
-		HandlerFunc(nodeHandler).
+	// Handler for static files under gameId url
+	r.Path("/g/{gameId:[a-f0-9]{16}}/").
+		HandlerFunc(staticHandler).
 		Name("static files")
 
-	r.PathPrefix("/js/").
-		Handler(http.StripPrefix("/js/",
-		http.FileServer(http.Dir("www/js/"))))
+	// Handler for websocket connections
+	r.Path("/g/{gameId:[a-f0-9]{16}}/ws/").
+		HandlerFunc(websocketHandler).
+		Name("websocket")
 
-	r.PathPrefix("/img/").
-		Handler(http.StripPrefix("/img/",
-		http.FileServer(http.Dir("www/img/"))))
-
-	r.PathPrefix("/css/").
-		Handler(http.StripPrefix("/css/",
-		http.FileServer(http.Dir("www/css/"))))
-
+	// Root url handler
 	r.Path("/").
-		HandlerFunc(hubHandler).
+		HandlerFunc(rootHandler).
 		Name("root")
 
+	// Start server
 	http.Handle("/", r)
-
 	go http.ListenAndServe(":8080", nil)
 }
