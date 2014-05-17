@@ -26,7 +26,23 @@
         if (!msg.val()) {
             return false;
         }
-        conn.send(JSON.stringify({msgType:"chat",data:{message:msg.val()}}));
+        message = {data:{}};
+        type = document.getElementById("msgtype").value;
+        if (type === 'villagerChat') {
+            message.msgType = 'chatMessage';
+            message.data.faction = 'villager';
+            message.data.message = msg.val();
+        }
+        if (type === 'mafiaChat') {
+            message.msgType = 'chatMessage';
+            message.data.faction = 'mafia';
+            message.data.message = msg.val();
+        }
+        if (type === 'joinGame') {
+            message.msgType = 'joinGame';
+            message.data.name = msg.val();
+        }
+        conn.send(JSON.stringify(message));
         msg.val("");
         return false
     });
@@ -84,9 +100,15 @@ body {
 </head>
 <body>
 <div id="log"></div>
+
 <form id="form">
-    <input type="submit" value="Send" />
+    <select id="msgtype">
+      <option value="joinGame">JoinGame</option>
+      <option value="villagerChat">Villager Chat</option>
+      <option value="mafiaChat">Mafia Chat</option>
+    </select>
     <input type="text" id="msg" size="64"/>
+    <input type="submit" value="Send" />
 </form>
 </body>
 </html>

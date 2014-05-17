@@ -43,6 +43,9 @@ func (p *player) msgParser(g *game) {
 		case msg.MsgType == "chatMessage":
 			log.Println("Chatmessage received", s)
 			g.broadcast(&msg)
+		case msg.MsgType == "joinGame":
+			log.Println("joinGame received", s)
+			g.broadcast(&msg)
 		default:
 			log.Println("Unknown message type '", msg.MsgType, "', ", s, msg)
 		}
