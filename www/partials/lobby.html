@@ -1,9 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
+<h1>LOBBY</h1>
 
-</body>
-</html>
+<div id="log" data-ng-bind-html="log"></div>
+<div id="playersList">
+    <ul>
+        <li class="animate-repeat" ng-repeat="player in players">
+            {{player}}
+        </li>
+    </ul>
+</div>
+<form id="form">
+    <select id="msgtype" ng-model="msgType">
+        <option value="joinGame">JoinGame</option>
+        <option value="villagerChat">Villager Chat</option>
+        <option value="mafiaChat">Mafia Chat</option>
+    </select>
+    <input type="text" id="msg" ng-model="msg" size="64"/>
+    <input type="submit" value="Send" ng-click="sendMsg()" />
+</form>

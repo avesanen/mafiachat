@@ -104,6 +104,8 @@ func Init() {
 		HandlerFunc(rootHandler).
 		Name("root")
 
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www/")))
+
 	// Start server
 	http.Handle("/", r)
 	go http.ListenAndServe(":8080", nil)

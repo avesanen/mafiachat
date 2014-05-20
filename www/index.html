@@ -1,75 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="mafiachat">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <head>
         <title>Mafioso</title>
-        <script type="text/javascript">
-    var conn;
-    var msg = $("#msg");
-    var log = $("#log");
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="/styles/main.css">
+    </head>
+    <body>
 
-    function appendLog(msg) {
-        var d = log[0]
-        var doScroll = d.scrollTop == d.scrollHeight - d.clientHeight;
-        msg.appendTo(log)
-        if (doScroll) {
-            d.scrollTop = d.scrollHeight - d.clientHeight;
-        }
-    }
+        <div id="container" ng-view></div>
 
-    $("#form").submit(function() {
-        if (!conn) {
-            return false;
-        }
-        if (!msg.val()) {
-            return false;
-        }
-        message = {data:{}};
-        type = document.getElementById("msgtype").value;
-        if (type === 'villagerChat') {
-            message.msgType = 'chatMessage';
-            message.data.faction = 'villager';
-            message.data.message = msg.val();
-        }
-        if (type === 'mafiaChat') {
-            message.msgType = 'chatMessage';
-            message.data.faction = 'mafia';
-            message.data.message = msg.val();
-        }
-        if (type === 'joinGame') {
-            message.msgType = 'joinGame';
-            message.data.name = msg.val();
-        }
-        conn.send(JSON.stringify(message));
-        msg.val("");
-        return false
-    });
-
-    if (window["WebSocket"]) {
-        conn = new WebSocket("ws://"+window.location.host+window.location.pathname+"ws/");
-        conn.onclose = function(evt) {
-            appendLog($("<div><b>Connection closed.</b></div>"))
-        }
-        conn.onmessage = function(evt) {
-            appendLog($("<div/>").text(evt.data))
-        }
-    } else {
-        appendLog($("<div><b>Your browser does not support WebSockets.</b></div>"))
-    }
-    });
-</script>
-<link rel="stylesheet" href="styles/main.css">
-</head>
-<body ng-app="mafiachat">
-<div id="log"></div>
-<form id="form">
-    <select id="msgtype">
-      <option value="joinGame">JoinGame</option>
-      <option value="villagerChat">Villager Chat</option>
-      <option value="mafiaChat">Mafia Chat</option>
-    </select>
-    <input type="text" id="msg" size="64"/>
-    <input type="submit" value="Send" />
-</form>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular-route.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.8/angular-sanitize.js"></script>
+        <script src="/js/app.js"></script>
+        <script src="/js/services/WebSocket.js"></script>
+        <script src="/js/services/MsgPublisher.js"></script>
+        <script src="/js/controllers/MainCtrl.js"></script>
     </body>
 </html>

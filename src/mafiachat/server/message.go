@@ -6,6 +6,7 @@ import (
 
 type message struct {
 	MsgType string          `json:"msgType"`
+	CallbackId int       `json:"callbackId"`
 	Data    json.RawMessage `json:"data"`
 }
 

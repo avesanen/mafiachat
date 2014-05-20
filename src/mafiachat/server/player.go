@@ -36,7 +36,7 @@ func (p *player) msgParser(g *game) {
 		var msg message
 		err := json.Unmarshal([]byte(s), &msg)
 		if err != nil {
-			log.Println("json can't unmarshal message:", s)
+			log.Println("json can't unmarshal message:", s, err)
 			continue
 		}
 		switch {
