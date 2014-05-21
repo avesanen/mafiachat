@@ -1,12 +1,22 @@
 'use strict';
 
-angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$scope', 'WebSocket', 'MsgPublisher', function($scope, WebSocket, MsgPublisher) {
-    $scope.log = "";
-    $scope.players = [];
+angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$rootScope', '$scope', '$location', 'WebSocket', 'ResponseHandler', function($rootScope, $scope, $location, WebSocket, ResponseHandler) {
+    $scope.log = "<b>Welcome " + $scope.name + "!</b>";
+
+    if (!$rootScope.games) {
+        $rootScope.games = [{"id":1, "name":"Jea tässä olis yks peli."}];
+    }
+
     WebSocket.setScope($scope);
 
+    if ($rootScope.name) {
+        var message = {data:{}};
+        message.msgType = "gameInfo";
+        WebSocket.sendMsg(message);
+    }
+
     $scope.sendMsg = function() {
-        if (!$scope.msg) {
+        if (!$scope.msg || !$scope.msgType) {
             return false;
         }
 
@@ -28,14 +38,25 @@ angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$scope', 'W
             message.data.name = $scope.msg;
         }
 
-        WebSocket.sendMsg(message).
+        WebSocket.sendMsg(message);
+        $scope.msg = "";
+    }
+
+    $scope.joinGame = function(gameId) {
+        var message = {data:{}};
+        message.msgType = 'joinGame';
+        message.data.gameId = gameId;
+        WebSocket.sendDeferMsg(message).
             then(function(resp) {
-                MsgPublisher.publish($scope, resp);
+                $location.path("/game");
             }, function(error) {
-                console.log("Failed to send data...");
+                $scope.errorMsg = "Couldn't connect to backend :(";
             }
         );
-        $scope.msg = "";
+    }
+
+    $scope.newGame = function() {
+        $location.path("/createGame");
     }
 }]);
 

@@ -1,0 +1,17 @@
+<div id="horizon">
+    <div id="centerContent">
+        <img id="logo" src="/img/logo.png" alt="Mafioso">
+        <form id="login" novalidate>
+            <div ng-class="{'has-error': !name, 'has-success': name}">
+                <input required class="form-control" type="text" ng-model="name" maxlength="30" placeholder="Name" />
+            </div>
+            <div ng-class="{'has-error': !password, 'has-success': password}">
+                <input required class="form-control" type="password" ng-model="password" placeholder="Password" />
+            </div>
+            <input class="btn btn-primary" type="submit" value="OK" ng-click="login()" />
+        </form>
+        <p class="loginError bg-danger center-block" ng-show="errorMsg">
+            {{errorMsg}}
+        </p>
+    </div>
+</div>

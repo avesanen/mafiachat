@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope', 'MsgPublisher', function($q, $rootScope, MsgPublisher) {
+angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope', 'ResponseHandler', function($q, $rootScope, ResponseHandler) {
     // We return this object to anything injecting our service
     var Service = {};
 
@@ -8,6 +8,7 @@ angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope
     var ws = new WebSocket("ws://"+window.location.host+window.location.pathname+"ws/");
 
     var scope = {};
+    var defer;
 
     ws.onopen = function(){
         console.log("Socket has been opened!");
@@ -17,30 +18,37 @@ angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope
         listener(JSON.parse(message.data));
     };
 
+    ws.onerror = function(error) {
+        $rootScope.$apply(defer.reject(error));
+    }
+
     Service.setScope = function($scope) {
         scope = $scope;
     }
 
-    Service.sendMsg = function(request) {
-        var defer = $q.defer();
+    Service.sendDeferMsg = function(request) {
+        defer = $q.defer();
         console.log('Sending request', request);
         ws.send(JSON.stringify(request));
         return defer.promise;
     };
 
+    Service.sendMsg = function(request) {
+        defer = undefined;
+        console.log('Sending request', request);
+        ws.send(JSON.stringify(request));
+    };
+
     function listener(data) {
         console.log("Received data from websocket: ", data);
-        // A public msg for everyone
-        MsgPublisher.publish(scope, data);
-    }
 
-    // Define a "getter" for getting customer data
-    Service.getCustomers = function() {
-        var request = {
-            type: "get_customers"
+        if (defer) {
+            $rootScope.$apply(defer.resolve(data));
+        } else {
+            // Message should be visible for user
+            ResponseHandler.handle(scope, data);
         }
-        // Storing in a variable for clarity on what sendRequest returns
-        return sendRequest(request);
+
     }
 
     return Service;

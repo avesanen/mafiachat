@@ -46,6 +46,9 @@ func (p *player) msgParser(g *game) {
 		case msg.MsgType == "joinGame":
 			log.Println("joinGame received", s)
 			g.broadcast(&msg)
+		case msg.MsgType == "login":
+			log.Println("login received", s)
+			g.broadcast(&msg);
 		default:
 			log.Println("Unknown message type '", msg.MsgType, "', ", s, msg)
 		}

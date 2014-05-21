@@ -1,19 +1,28 @@
 <h1>LOBBY</h1>
 
-<div id="log" data-ng-bind-html="log"></div>
-<div id="playersList">
-    <ul>
-        <li class="animate-repeat" ng-repeat="player in players">
-            {{player}}
-        </li>
-    </ul>
+<div id="chatContainer">
+    <div id="log" class="form-control" data-ng-bind-html="log"></div>
+    <div id="playersList" class="form-control hidden-xs">
+        <ul>
+            <li class="animate-repeat" ng-repeat="player in players">
+                {{player}}
+            </li>
+        </ul>
+    </div>
 </div>
-<form id="form">
-    <select id="msgtype" ng-model="msgType">
+<form class="form-inline" id="chatForm">
+    <select class="form-control" id="msgtype" ng-model="msgType">
         <option value="joinGame">JoinGame</option>
         <option value="villagerChat">Villager Chat</option>
         <option value="mafiaChat">Mafia Chat</option>
     </select>
-    <input type="text" id="msg" ng-model="msg" size="64"/>
-    <input type="submit" value="Send" ng-click="sendMsg()" />
+    <input class="form-control" type="text" id="msg" ng-model="msg" size="64"/>
+    <input class="btn btn-default" type="submit" value="Send" ng-click="sendMsg()" />
 </form>
+
+<br />
+<br />
+<input type="button" class="btn btn-success" value="Create new game" ng-click="newGame()" />
+
+<h2>OPEN GAMES</h2>
+<div ng-include="'/partials/openGames.html'"></div>
