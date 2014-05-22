@@ -28,10 +28,15 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 $scope.players.push($scope.name);
                 break;
         }
-        $scope.$apply();
+
+        if ($scope) {
+            $scope.$apply();
+        }
 
         var objDiv = document.getElementById("log");
-        objDiv.scrollTop = objDiv.scrollHeight;
+        if (objDiv) {
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
     };
 
     return Service;

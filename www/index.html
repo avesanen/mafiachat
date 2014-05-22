@@ -9,6 +9,15 @@
         <link rel="stylesheet" href="/styles/main.css">
     </head>
     <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container">
+                <ul class="nav navbar-nav">
+                    <li ng-class="{active: currentView == '/games'}">
+                        <a ng-class="{disabled:currentView == '/games'}" ng-disabled="currentView == '/games'" ng-click="home()">Games list</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
         <div id="container" ng-view></div>
 

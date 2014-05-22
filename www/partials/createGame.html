@@ -1,4 +1,10 @@
-<form ng-submit="createGame()">
-    <input type="text" class="form-control" ng-model="gameName">
-    <input type="submit" class="btn btn-primary">
-</form>
+<div class="center-block" id="createGame">
+    <h1>Create new game</h1>
+    <form ng-submit="createGame()">
+        <input type="text" class="form-control" ng-model="gameName" placeholder="Game name">
+        <input type="text" class="form-control" ng-model="maxPlayers" placeholder="Max players">
+        <input type="text" class="form-control" ng-model="cops" placeholder="Cops">
+        <input type="text" class="form-control" ng-model="gamePassword" placeholder="Password">
+        <input type="submit" class="btn btn-primary">
+    </form>
+</div>

@@ -13,11 +13,19 @@ angular.module('mafiachat.controllers').controller('LoginCtrl', ['$rootScope', '
         message.msgType = 'login';
         message.data.name = $scope.name;
         message.data.password = $scope.password;
+        if ($rootScope.gameId) {
+            message.data.gameId = $rootScope.gameId;
+        }
 
         WebSocket.sendDeferMsg(message).
             then(function(resp) {
                 $rootScope.name = $scope.name;
-                $location.path("/lobby");
+                if ($rootScope.requiredPath) {
+                    console.log("REQUIRED PATH WAS: ", $rootScope.requiredPath);
+                    $location.path($rootScope.requiredPath);
+                } else {
+                    $location.path("/game");
+                }
             }, function(error) {
                 $scope.errorMsg = "Couldn't connect to backend :(";
             }

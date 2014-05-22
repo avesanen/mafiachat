@@ -1,0 +1,48 @@
+<div class="gamesListContainer center-block">
+    <input type="button" class="btn btn-success" value="Create new game" ng-click="newGame()" />
+
+    <h2>OPEN GAMES</h2>
+    <div class="gamesList">
+        <div class="list-group">
+            <a ng-click="joinGame(game.id)" ng-show="game.state == 'open'" class="list-group-item" ng-repeat="game in games">
+                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.size}}</span></h4>
+                <p class="list-group-item-text">
+                    <dl class="dl-horizontal">
+                        <dt>Needs password</dt>
+                        <dd>{{game.needsPassword}}</dd>
+                        <dt>Number of cops</dt>
+                        <dd>{{game.cops}}</dd>
+                        <dt>Number of mafiosi</dt>
+                        <dd>{{game.mafiosi}}</dd>
+                        <dt>Number of doctors</dt>
+                        <dd>{{game.doctors}}</dd>
+                    </dl>
+                    <div ng-if="game.needsPassword">
+                        <input type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
+                    </div>
+                </p>
+            </a>
+        </div>
+    </div>
+
+    <h2>ONGOING GAMES</h2>
+    <div class="gamesList">
+        <div class="list-group">
+            <a ng-click="joinGame(game.id)" ng-show="game.state != 'open'" class="list-group-item" ng-repeat="game in games">
+                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.size}}</span></h4>
+                <p class="list-group-item-text">
+                    <dl class="dl-horizontal">
+                        <dt>Needs password</dt>
+                        <dd>{{game.needsPassword}}</dd>
+                        <dt>Number of cops</dt>
+                        <dd>{{game.cops}}</dd>
+                        <dt>Number of mafiosi</dt>
+                        <dd>{{game.mafiosi}}</dd>
+                        <dt>Number of doctors</dt>
+                        <dd>{{game.doctors}}</dd>
+                    </dl>
+                </p>
+            </a>
+        </div>
+    </div>
+</div>
