@@ -16,6 +16,7 @@ type player struct {
 func newPlayer() *player {
 	p := &player{}
 	p.State = "new"
+	p.Name = "anonymous"
 	p.Id = uuid()
 	return p
 }

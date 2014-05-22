@@ -24,6 +24,7 @@ func newGame() *game {
 func (g *game) addPlayer(p *player) {
 	g.Players = append(g.Players, p)
 	go p.msgParser(g)
+	g.broadcastGameInfo()
 }
 
 // Remove player from game
@@ -34,6 +35,7 @@ func (g *game) rmPlayer(p *player) {
 			break
 		}
 	}
+	g.broadcastGameInfo()
 }
 
 // Broadcast a message to players
