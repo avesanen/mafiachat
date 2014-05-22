@@ -6,52 +6,58 @@ import (
 )
 
 type game struct {
-	Players map[string]*player
-	State   string
-	Id      string
+	Players []*player `json:"players"`
+	State   string    `json:"state"`
+	Id      string    `json:"id"`
 }
 
 // Return a new game
 func newGame() *game {
 	g := &game{}
 	g.State = "new"
-	g.Players = make(map[string]*player)
+	g.Players = make([]*player, 0)
 	gameList[g.Id] = g
 	return g
 }
 
 // Add player to game
 func (g *game) addPlayer(p *player) {
-	g.Players[p.Id] = p
+	g.Players = append(g.Players, p)
 	go p.msgParser(g)
 }
 
 // Remove player from game
 func (g *game) rmPlayer(p *player) {
-	// Just return if g.players map does not have player.id
-	if _, ok := g.Players[p.Id]; !ok {
-		return
-	}
-
-	// remove item in g.players with key p.id
-	delete(g.Players, p.Id)
-
-	// if players map length is 0, the game is empty.
-	if len(g.Players) == 0 {
-		log.Println("Game", g.Id, "has no more players.")
+	for i := 0; i < len(g.Players); i++ {
+		if g.Players[i] == p {
+			g.Players = append(g.Players[:i], g.Players[i+1:]...)
+			break
+		}
 	}
 }
 
 // Broadcast a message to players
-func (g *game) broadcast(m *message) {
-	s, err := json.Marshal(m)
+func (g *game) broadcastGameInfo() {
+	log.Println("broadcastGameInfo")
+	gameInfo := &gameInfo{}
+	gameInfo.MsgType = "gameInfo"
+	gameInfo.Data.Game = g
+	msg, err := json.Marshal(gameInfo)
 	if err != nil {
-		log.Println("Can't marshal message to json:", m)
+		log.Println("Can't marshal gameinfo message to json:", msg)
 		return
 	}
+	g.broadcast(msg)
+}
 
-	for id, p := range g.Players {
-		log.Println("sending to", id)
-		p.Connection.Outbound <- string(s)
+func (g *game) loginPlayer(p *player) {
+	g.broadcastGameInfo()
+	return
+}
+
+// Broadcast a message to players
+func (g *game) broadcast(msg []byte) {
+	for i := 0; i < len(g.Players); i++ {
+		g.Players[i].Connection.Outbound <- msg
 	}
 }

@@ -8,7 +8,7 @@ import (
 
 const (
 	writeWait  = 10 * time.Second
-	readWait   = 60 * time.Second
+	readWait   = 10 * time.Second
 	pingPeriod = (readWait * 9) / 10
 )
 
@@ -16,8 +16,8 @@ const (
 // the websocket connection.
 type connection struct {
 	ws       *websocket.Conn
-	Outbound chan string
-	Inbound  chan string
+	Outbound chan []byte
+	Inbound  chan []byte
 }
 
 // Return a new connection with channels inited and reader/writer
@@ -26,8 +26,8 @@ type connection struct {
 func newConnetion(ws *websocket.Conn) *connection {
 	c := &connection{}
 	c.ws = ws
-	c.Outbound = make(chan string)
-	c.Inbound = make(chan string)
+	c.Outbound = make(chan []byte)
+	c.Inbound = make(chan []byte)
 	go c.reader()
 	go c.writer()
 	return c
@@ -45,14 +45,17 @@ func (c *connection) reader() {
 		close(c.Inbound)
 		c.ws.Close()
 	}()
-	c.ws.SetPongHandler(func(string) error { c.ws.SetReadDeadline(time.Now().Add(writeWait)); return nil })
+	c.ws.SetPongHandler(func(string) error {
+		c.ws.SetReadDeadline(time.Now().Add(writeWait))
+		return nil
+	})
 	c.ws.SetReadDeadline(time.Now().Add(readWait))
 	for {
 		_, message, err := c.ws.ReadMessage()
 		if err != nil {
 			break
 		}
-		c.Inbound <- string(message)
+		c.Inbound <- message
 	}
 }
 
@@ -88,7 +91,8 @@ func (c *connection) writer() {
 			}
 		case <-ticker.C:
 			if err := c.write(websocket.PingMessage, []byte{}); err != nil {
-				log.Println("[connection.writePump] err: '", err, "'.")
+				log.Println("[connection.writePump] ticker err: '", err, "'.")
+				log.Println("ping")
 				return
 			}
 		}

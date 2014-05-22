@@ -6,7 +6,6 @@ import (
 
 type message struct {
 	MsgType string          `json:"msgType"`
-	CallbackId int       `json:"callbackId"`
 	Data    json.RawMessage `json:"data"`
 }
 
@@ -15,6 +14,7 @@ type chatMessage struct {
 	Data    struct {
 		Faction string `json:"faction"`
 		Message string `json:"message"`
+		Player  string `json:"player"`
 	} `json:"data"`
 }
 
@@ -44,6 +44,14 @@ type gameInfo struct {
 type errorMessage struct {
 	MsgType string `json:"msgType"`
 	Data    struct {
-		Message string `json:"vote"`
+		Message string `json:"message"`
+	} `json:"data"`
+}
+
+type loginMessage struct {
+	MsgType string `json:"msgType"`
+	Data    struct {
+		Name     string `json:"name"`
+		Password string `json:"password"`
 	} `json:"data"`
 }

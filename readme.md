@@ -1,44 +1,44 @@
 MafiaChat
 =========
 
-State “Lobby”, Observing or joining game:
------------------------------------------
-
-After connecting to server with websocket, server will send following package:
+After connecting to websocket, client will send login request:
 
     {
-      msgType: “gameInit”,
-      data: {
-        players: [
-          { name: “jack”, role: “villager” },
-          { name: “john”, role: “villager” }
-        ],
-        game: {
-          name: “Friday Night Mafia”,
-          running: false
+        "msgType":"login",
+        "data":{
+            "name":"john",
+            "password":"passwrd1"
         }
-      }
-    }
-
-If the game is not running, client can join the game by sending a “joinGame” message, with "password" to rejoin the same game and "joinAs" set to "player":
-
-    {
-      msgType: “joinGame”,
-      data: {
-        name: “jane”,
-        password: “pass1”,
-        joinAs: “player”
-      }
-    }
-
-If player wants to observe, or the game is already running, joinAs must be “observer”:
-
-    {
-      msgType: “joinGame”,
-      data: {
-        name: “jane”,
-        password: “pass1”,
-        joinAs: “observer”
-      }
     }
     
+If login is successful, server will respond with gameInfo. If client has received gameInfo, it can proceed to chat view.
+
+    {
+        "msgType":"gameInfo",
+        "data":{
+            "id":"deadc0ffeebabe",
+            "state": "lobby",
+            "players": [
+                {
+                    "id" : "randomUUID1",
+                    "name": "john",
+                    "state": "new"
+                },
+                {
+                    "id" : "randomUUID2",
+                    "name": "jahn",
+                    "state": "new"
+                }
+            ]
+            
+        }
+    }
+
+If the login is NOT successfull, server will respond with error. In that case, client will display the error and wait for another login attempt.
+
+    {
+        "msgType": "error",
+        "data": {
+            "message": "wrong password for player john"
+        }
+    }

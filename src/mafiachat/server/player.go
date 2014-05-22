@@ -6,10 +6,10 @@ import (
 )
 
 type player struct {
-	State      string `json:"-"`
-	Name       string
-	Password   string `json:"-"`
-	Id         string
+	Id         string      `json:"id"`
+	Name       string      `json:"name"`
+	Password   string      `json:"-"`
+	State      string      `json:"state"`
 	Connection *connection `json:"-"`
 }
 
@@ -18,6 +18,18 @@ func newPlayer() *player {
 	p.State = "new"
 	p.Id = uuid()
 	return p
+}
+
+func (p *player) sendError(error string) {
+	errorMsg := &errorMessage{}
+	errorMsg.MsgType = "error"
+	errorMsg.Data.Message = error
+	errorMsgJson, err := json.Marshal(errorMsg)
+	if err != nil {
+		log.Println("json can't marshal errormsg", error)
+		return
+	}
+	p.Connection.Outbound <- errorMsgJson
 }
 
 func (p *player) msgParser(g *game) {
@@ -36,21 +48,25 @@ func (p *player) msgParser(g *game) {
 		var msg message
 		err := json.Unmarshal([]byte(s), &msg)
 		if err != nil {
-			log.Println("json can't unmarshal message:", s, err)
+			log.Println("json can't unmarshal message:", string(s), err)
 			continue
 		}
 		switch {
 		case msg.MsgType == "chatMessage":
-			log.Println("Chatmessage received", s)
-			g.broadcast(&msg)
-		case msg.MsgType == "joinGame":
-			log.Println("joinGame received", s)
-			g.broadcast(&msg)
+			log.Println("Chatmessage received", string(s))
+			g.broadcast([]byte(s))
 		case msg.MsgType == "login":
-			log.Println("login received", s)
-			g.broadcast(&msg);
+			log.Println("login received", string(s))
+			var login loginMessage
+			err := json.Unmarshal([]byte(s), &login)
+			if err != nil {
+				log.Println("json can't unmarshal loginmessage", s, err)
+			}
+			p.Name = login.Data.Name
+			p.Password = login.Data.Password
+			g.loginPlayer(p)
 		default:
-			log.Println("Unknown message type '", msg.MsgType, "', ", s, msg)
+			log.Println("Unknown message type ", msg.MsgType, ",", s, msg)
 		}
 	}
 }

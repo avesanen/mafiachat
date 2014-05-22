@@ -68,17 +68,13 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	p := newPlayer()
 	p.Connection = c
 
-	log.Println(gameList)
-
 	if _, ok := gameList[gameId]; ok {
 		gameList[gameId].addPlayer(p)
-		log.Println("exists")
 	} else {
 		g := newGame()
 		g.Id = gameId
 		gameList[g.Id] = g
 		g.addPlayer(p)
-		log.Println("not exists")
 	}
 	//hs.addConnection <- &Connection{ws: ws, hubId: hubId}
 }
