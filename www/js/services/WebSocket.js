@@ -44,10 +44,10 @@ angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope
 
         if (defer) {
             $rootScope.$apply(defer.resolve(data));
-        } else {
-            // Message should be visible for user
-            ResponseHandler.handle(scope, data);
         }
+        // Message should be visible for user
+        ResponseHandler.handle(scope, data);
+
 
     }
 

@@ -25,7 +25,7 @@ angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$rootScope'
         message.data.gameId = gameId;
         WebSocket.sendDeferMsg(message).
             then(function(resp) {
-                $scope.gameName = "TODO: READ GAMENAME FROM GAMEINFO"; //resp.data.game.name;
+                $rootScope.gameInfo = resp.data;
                 $location.path("/game");
             }, function(error) {
                 $scope.errorMsg = "Couldn't connect to backend :(";

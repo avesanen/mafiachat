@@ -9,12 +9,14 @@ type game struct {
 	Players []*player `json:"players"`
 	State   string    `json:"state"`
 	Id      string    `json:"id"`
+	Name	string	  `json:"name"`
 }
 
 // Return a new game
 func newGame() *game {
 	g := &game{}
 	g.State = "new"
+	g.Name = "Gamee"
 	g.Players = make([]*player, 0)
 	gameList[g.Id] = g
 	return g
@@ -24,7 +26,9 @@ func newGame() *game {
 func (g *game) addPlayer(p *player) {
 	g.Players = append(g.Players, p)
 	go p.msgParser(g)
-	g.broadcastGameInfo()
+	if p.Name != "anonymous" {
+		g.broadcastGameInfo()
+	}
 }
 
 // Remove player from game

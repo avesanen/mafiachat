@@ -1,6 +1,8 @@
 'use strict';
 
 angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$scope', '$location', 'WebSocket', 'ResponseHandler', function($rootScope, $scope, $location, WebSocket, ResponseHandler) {
+    WebSocket.setScope($scope);
+
     $scope.log = "<b>Welcome " + $scope.name + "!</b>";
 
     $scope.createGame = function() {
@@ -22,15 +24,15 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
             message.msgType = 'chatMessage';
             message.data.faction = 'villager';
             message.data.message = $scope.msg;
+            message.data.player = {};
+            message.data.player.name = $rootScope.name;
         }
         if (type === 'mafiaChat') {
             message.msgType = 'chatMessage';
             message.data.faction = 'mafia';
             message.data.message = $scope.msg;
-        }
-        if (type === 'joinGame') {
-            message.msgType = 'joinGame';
-            message.data.name = $scope.msg;
+            message.data.player = {};
+            message.data.player.name = $rootScope.name;
         }
 
         WebSocket.sendMsg(message);

@@ -24,7 +24,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider) {
         $location.path("/games");
     }
 
-    $rootScope.$on('$routeChangeSuccess', function () {
+    $rootScope.$on('$routeChangeStart', function (event, next) {
         $rootScope.currentView = $location.path();
 
         // Check that login is done if any other page is requested than games listing

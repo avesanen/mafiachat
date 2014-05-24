@@ -1,6 +1,7 @@
 'use strict';
 
 angular.module('mafiachat.controllers').controller('LoginCtrl', ['$rootScope', '$scope', '$location', 'WebSocket', 'ResponseHandler', function($rootScope, $scope, $location, WebSocket, ResponseHandler) {
+    WebSocket.setScope($rootScope);
 
     $scope.login = function() {
 
@@ -21,7 +22,6 @@ angular.module('mafiachat.controllers').controller('LoginCtrl', ['$rootScope', '
             then(function(resp) {
                 $rootScope.name = $scope.name;
                 if ($rootScope.requiredPath) {
-                    console.log("REQUIRED PATH WAS: ", $rootScope.requiredPath);
                     $location.path($rootScope.requiredPath);
                 } else {
                     $location.path("/game");
