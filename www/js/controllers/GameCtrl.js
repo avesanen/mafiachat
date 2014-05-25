@@ -6,10 +6,19 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     $scope.log = "<b>Welcome " + $scope.name + "!</b>";
 
     $scope.createGame = function() {
-        console.log("Create game: ", $scope.gameName);
-        var game = {"id":$scope.games.length, "name":$scope.gameName};
+        var needsPassword = $scope.gamePassword != '';
+        var game = {
+            "id":$scope.games.length,
+            "name":$scope.gameName,
+            "needsPassword":needsPassword,
+            "maxPlayers":$scope.maxPlayers,
+            "cops":$scope.cops,
+            "doctors":$scope.doctors,
+            "mafiosi":$scope.mafiosi,
+            "players":[]
+        };
         $rootScope.games.push(game);
-        $location.path("/lobby");
+        $location.path("/games");
     }
 
     $scope.sendMsg = function() {

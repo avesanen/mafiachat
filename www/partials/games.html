@@ -4,8 +4,8 @@
     <h2>OPEN GAMES</h2>
     <div class="gamesList">
         <div class="list-group">
-            <a ng-click="joinGame(game.id)" ng-show="game.state == 'open'" class="list-group-item" ng-repeat="game in games">
-                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.size}}</span></h4>
+            <div ng-show="game.state == 'open'" class="list-group-item" ng-repeat="game in games">
+                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.maxPlayers}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">
                         <dt>Needs password</dt>
@@ -17,19 +17,21 @@
                         <dt>Number of doctors</dt>
                         <dd>{{game.doctors}}</dd>
                     </dl>
-                    <div ng-if="game.needsPassword">
-                        <input type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
-                    </div>
+
+                    <input ng-show="game.needsPassword" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
                 </p>
-            </a>
+                <div class="clearfix">
+                    <button ng-disabled="game.needsPassword == 'yes' && !gamePassword" ng-click="joinGame(game.id, gamePassword)" class="btn btn-success pull-right">Join game</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <h2>ONGOING GAMES</h2>
     <div class="gamesList">
         <div class="list-group">
-            <a ng-click="joinGame(game.id)" ng-show="game.state != 'open'" class="list-group-item" ng-repeat="game in games">
-                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.size}}</span></h4>
+            <div ng-show="game.state != 'open'" class="list-group-item" ng-repeat="game in games">
+                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.maxPlayers}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">
                         <dt>Needs password</dt>
@@ -42,7 +44,10 @@
                         <dd>{{game.doctors}}</dd>
                     </dl>
                 </p>
-            </a>
+                <div class="clearfix">
+                    <button ng-click="joinGame(game.id)" class="btn btn-success pull-right">View game</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
