@@ -105,6 +105,10 @@ p.loginError {
     margin-top: 3px;
 }
 
+.gameAuthError {
+    margin-top: 10px;
+}
+
 div#openGames ul li {
     cursor: pointer;
     display: block;

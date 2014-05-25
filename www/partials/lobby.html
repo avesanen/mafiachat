@@ -11,10 +11,21 @@
     </div>
 </div>
 <form class="form-inline" id="chatForm">
-    <select class="form-control" id="msgtype" ng-model="msgType">
-        <option value="villagerChat">Villager Chat</option>
-        <option value="mafiaChat">Mafia Chat</option>
-    </select>
-    <input class="form-control" type="text" id="msg" ng-model="msg" size="64"/>
-    <input class="btn btn-default" type="submit" value="Send" ng-click="sendMsg()" />
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <select class="form-control" id="msgtype" ng-model="msgType">
+                        <option value="" disabled selected>Select chat room</option>
+                        <option value="villagerChat">Villager Chat</option>
+                        <option value="mafiaChat">Mafia Chat</option>
+                    </select>
+                </div>
+                <input class="form-control" type="text" id="msg" ng-model="msg" size="64"/>
+                <span class="input-group-btn">
+                    <input class="btn btn-default" type="submit" value="Send" ng-click="sendMsg()" />
+                </span>
+            </div>
+        </div>
+    </div>
 </form>

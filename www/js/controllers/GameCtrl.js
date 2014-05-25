@@ -18,11 +18,12 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
             "players":[]
         };
         $rootScope.games.push(game);
-        $location.path("/games");
+        $location.path("/game");
     }
 
     $scope.sendMsg = function() {
         if (!$scope.msg || !$scope.msgType) {
+            $scope.log += "<br /><span class='glyphicon glyphicon-exclamation-sign text-danger'></span><span class='text-danger'> Select chat room and enter a message</span>";
             return false;
         }
 

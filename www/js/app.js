@@ -5,6 +5,7 @@ var app = angular.module(
     [
         'ngRoute',
         'ngSanitize',
+        'ui.bootstrap',
         //'mafiachat.filters',
          'mafiachat.services',
          'mafiachat.controllers'
@@ -26,11 +27,16 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider) {
 
     $rootScope.$on('$routeChangeStart', function (event, next) {
         $rootScope.currentView = $location.path();
-
         // Check that login is done if any other page is requested than games listing
         if ($location.path() != "/games" && $location.path() != "/login" && !$rootScope.name) {
-            $rootScope.requiredPath = $location.path();
-            $location.path("/login");
+            // Check HTML5 storage
+            if (sessionStorage.name) {
+                console.log("Loading user from session storage: " + sessionStorage.name);
+                $rootScope.name = sessionStorage.name;
+            } else {
+                $rootScope.requiredPath = $location.path();
+                $location.path("/login");
+            }
         }
     })
 });

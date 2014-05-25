@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mafiachat.controllers').controller('LoginCtrl', ['$rootScope', '$scope', '$location', 'WebSocket', 'ResponseHandler', function($rootScope, $scope, $location, WebSocket, ResponseHandler) {
+angular.module('mafiachat.controllers').controller('LoginCtrl', ['$rootScope', '$scope', '$location', '$routeParams', 'WebSocket', 'GameService', function($rootScope, $scope, $location, $routeParams, WebSocket, GameService) {
     WebSocket.setScope($rootScope);
 
     $scope.login = function() {
@@ -14,16 +14,20 @@ angular.module('mafiachat.controllers').controller('LoginCtrl', ['$rootScope', '
         message.msgType = 'login';
         message.data.name = $scope.name;
         message.data.password = $scope.password;
-        if ($rootScope.gameId) {
-            message.data.gameId = $rootScope.gameId;
+
+        var gameData = GameService.getGameData();
+        if (gameData.id) {
+            message.data.gameId = gameData.id;
         }
 
         WebSocket.sendDeferMsg(message).
             then(function(resp) {
+                sessionStorage.name = $scope.name;
                 $rootScope.name = $scope.name;
                 if ($rootScope.requiredPath) {
                     $location.path($rootScope.requiredPath);
                 } else {
+                    $location.$$search = {};
                     $location.path("/game");
                 }
             }, function(error) {

@@ -18,11 +18,12 @@
                         <dd>{{game.doctors}}</dd>
                     </dl>
 
-                    <input ng-show="game.needsPassword" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
+                    <input ng-show="game.needsPassword" ng-change="gameAuth()" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
                 </p>
                 <div class="clearfix">
-                    <button ng-disabled="game.needsPassword == 'yes' && !gamePassword" ng-click="joinGame(game.id, gamePassword)" class="btn btn-success pull-right">Join game</button>
+                    <button ng-disabled="game.needsPassword == 'yes' && invalidPass" ng-click="joinGame()" class="btn btn-success pull-right">Join game</button>
                 </div>
+                <div ng-show="errorMsg" class="gameAuthError alert alert-danger">{{errorMsg}}</div>
             </div>
         </div>
     </div>
@@ -47,6 +48,7 @@
                 <div class="clearfix">
                     <button ng-click="joinGame(game.id)" class="btn btn-success pull-right">View game</button>
                 </div>
+                <div ng-show="errorMsg" class="">{{errorMsg}}</div>
             </div>
         </div>
     </div>

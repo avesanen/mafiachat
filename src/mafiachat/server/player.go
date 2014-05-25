@@ -66,6 +66,19 @@ func (p *player) msgParser(g *game) {
 			p.Name = login.Data.Name
 			p.Password = login.Data.Password
 			g.loginPlayer(p)
+		case msg.MsgType == "gameAuth":
+			log.Println("Game auth received", string(s))
+			// TODO: Read id and password from the msg and check if valid
+			var login loginMessage
+			err := json.Unmarshal([]byte(s), &login)
+			if err != nil {
+				log.Println("json can't unmarshal gameauth message", s, err)
+			}
+			if login.Data.Password == "apina" {
+				g.broadcast([]byte("{\"data\":{\"success\":true}}"));
+			} else {
+				g.broadcast([]byte("{\"data\":{\"success\":false}}"));
+			}
 		default:
 			log.Println("Unknown message type ", msg.MsgType, ",", s, msg)
 		}

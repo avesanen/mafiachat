@@ -1,12 +1,24 @@
 <div class="center-block" id="createGame">
     <h1>Create new game</h1>
     <form ng-submit="createGame()">
-        <input type="text" class="form-control" ng-model="gameName" placeholder="Game name">
-        <input type="text" class="form-control" ng-model="maxPlayers" placeholder="Max players">
-        <input type="text" class="form-control" ng-model="cops" placeholder="Cops">
-        <input type="text" class="form-control" ng-model="doctors" placeholder="Doctors">
-        <input type="text" class="form-control" ng-model="mafiosi" placeholder="Mafiosi">
-        <input type="text" class="form-control" ng-model="gamePassword" placeholder="Password">
+        <div ng-class="{'has-error': !gameName, 'has-success': gameName}">
+            <input type="text" class="form-control" ng-model="gameName" placeholder="Game name">
+        </div>
+        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
+            <input type="number" class="form-control" ng-model="maxPlayers" placeholder="Max players" value="10">
+        </div>
+        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
+            <input type="number" class="form-control" ng-model="cops" placeholder="Cops" value="1">
+        </div>
+        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
+            <input type="number" class="form-control" ng-model="doctors" placeholder="Doctors" value="2">
+        </div>
+        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
+            <input type="number" class="form-control" ng-model="mafiosi" placeholder="Mafiosi" value="3">
+        </div>
+        <div>
+            <input type="password" class="form-control" ng-model="gamePassword" placeholder="Password">
+        </div>
         <input type="submit" class="btn btn-primary">
     </form>
 </div>
