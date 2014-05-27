@@ -79,6 +79,14 @@ func (p *player) msgParser(g *game) {
 			} else {
 				g.broadcast([]byte("{\"data\":{\"success\":false}}"));
 			}
+		case msg.MsgType == "vote":
+			log.Println("Voted for player", string(s))
+		case msg.MsgType == "identify":
+			log.Println("Identified player", string(s))
+		case msg.MsgType == "kill":
+			log.Println("Killed player", string(s))
+		case msg.MsgType == "heal":
+			log.Println("Healed player", string(s))
 		default:
 			log.Println("Unknown message type ", msg.MsgType, ",", s, msg)
 		}

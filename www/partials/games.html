@@ -8,8 +8,6 @@
                 <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.maxPlayers}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">
-                        <dt>Needs password</dt>
-                        <dd>{{game.needsPassword}}</dd>
                         <dt>Number of cops</dt>
                         <dd>{{game.cops}}</dd>
                         <dt>Number of mafiosi</dt>
@@ -21,7 +19,7 @@
                     <input ng-show="game.needsPassword" ng-change="gameAuth()" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
                 </p>
                 <div class="clearfix">
-                    <button ng-disabled="game.needsPassword == 'yes' && invalidPass" ng-click="joinGame()" class="btn btn-success pull-right">Join game</button>
+                    <button ng-disabled="game.needsPassword && invalidPass" ng-click="joinGame()" class="btn btn-success pull-right">Join game</button>
                 </div>
                 <div ng-show="errorMsg" class="gameAuthError alert alert-danger">{{errorMsg}}</div>
             </div>
@@ -35,8 +33,6 @@
                 <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.maxPlayers}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">
-                        <dt>Needs password</dt>
-                        <dd>{{game.needsPassword}}</dd>
                         <dt>Number of cops</dt>
                         <dd>{{game.cops}}</dd>
                         <dt>Number of mafiosi</dt>

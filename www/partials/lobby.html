@@ -1,31 +1,42 @@
-<h1>{{gameName}}</h1>
+<h1>{{gameInfo.game.name}}</h1>
 
 <div id="chatContainer">
     <div id="log" class="form-control" data-ng-bind-html="log"></div>
-    <div id="playersList" class="form-control hidden-xs">
-        <ul>
-            <li class="animate-repeat" ng-repeat="player in gameInfo.game.players">
-                {{player.name}}
-            </li>
-        </ul>
-    </div>
-</div>
-<form class="form-inline" id="chatForm">
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="input-group">
-                <div class="input-group-btn">
-                    <select class="form-control" id="msgtype" ng-model="msgType">
-                        <option value="" disabled selected>Select chat room</option>
-                        <option value="villagerChat">Villager Chat</option>
-                        <option value="mafiaChat">Mafia Chat</option>
-                    </select>
-                </div>
-                <input class="form-control" type="text" id="msg" ng-model="msg" size="64"/>
+
+    <form class="form-inline" id="chatForm">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <select class="form-control" id="msgtype" ng-model="msgType">
+                            <option value="" disabled selected>Select chat room</option>
+                            <option value="villagerChat">Villager Chat</option>
+                            <option value="mafiaChat">Mafia Chat</option>
+                        </select>
+                    </div>
+                    <input class="form-control" type="text" id="msg" ng-model="msg" size="64"/>
                 <span class="input-group-btn">
                     <input class="btn btn-default" type="submit" value="Send" ng-click="sendMsg()" />
                 </span>
+                </div>
             </div>
         </div>
+    </form>
+</div>
+
+    <div id="playersList" class="panel panel-default hidden-xs">
+        <ul class="list-group">
+            <li class="list-group-item player animate-repeat player-state-{{player.state}}" dropdown is-open="status.isopen" title="{{roleDescription[player.state]}}" ng-repeat="player in gameInfo.game.players">
+                <div class="playerName btn-group dropdown-toggle">
+                    {{player.name}} <span class="playerContextMenuCaret caret pull-right"></span>
+                    <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
+                </div>
+                <ul class="playerContextMenu dropdown-menu" role="menu">
+                    <li><a href ng-click="vote(player)">Vote</a></li>
+                    <li><a href ng-click="kill(player)">Kill</a></li>
+                    <li><a href ng-click="identify(player)">Identify</a></li>
+                    <li><a href ng-click="heal(player)">Heal</a></li>
+                </ul>
+            </li>
+        </ul>
     </div>
-</form>

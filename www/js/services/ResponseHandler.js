@@ -18,7 +18,6 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 $scope.log += "<b>" + msg.data.name + " joined the game!</b>";
                 break;
             case 'chatMessage':
-                console.log("CHAT MSG: ", msg.data.player.name);
                 $scope.log += "<b>"+msg.data.player.name+":</b>&nbsp;<span class='"+msg.data.faction+"Message'>" + msg.data.message + "</span>";
                 break;
             case 'login':
@@ -75,6 +74,7 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 return players1[i].name;
             }
         }
+        return "WTF!?";
     }
 
     return Service;

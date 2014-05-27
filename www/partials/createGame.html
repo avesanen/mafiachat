@@ -1,24 +1,43 @@
 <div class="center-block" id="createGame">
     <h1>Create new game</h1>
     <form ng-submit="createGame()">
-        <div ng-class="{'has-error': !gameName, 'has-success': gameName}">
-            <input type="text" class="form-control" ng-model="gameName" placeholder="Game name">
+        <div ng-show="game.cops > game.maxPlayers - game.doctors - game.mafiosi - game.minVillagers" class="alert alert-danger">Increase max players or decrease number of cops, doctors or mafiosi.</div>
+
+        <div class="form-group" ng-class="{'has-error': !game.name, 'has-success': game.name}">
+            <label for="name">Name</label>
+            <input type="text" id="name" class="form-control" ng-model="game.name" required placeholder="Game name">
         </div>
-        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
-            <input type="number" class="form-control" ng-model="maxPlayers" placeholder="Max players" value="10">
+
+        <div class="form-group" ng-class="{'has-error': game.maxPlayers < game.minPlayers, 'has-success': game.maxPlayers >= game.minPlayers}">
+            <label for="maxPlayers">Max players</label>
+            <input type="number" integer min="{{game.minPlayers}}" id="maxPlayers" class="form-control" ng-model="game.maxPlayers" required placeholder="Max players">
         </div>
-        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
-            <input type="number" class="form-control" ng-model="cops" placeholder="Cops" value="1">
+
+        <div class="form-group">
+            <label>Min villagers</label>
+            <p class="form-control-static">{{game.minVillagers}}</p>
         </div>
-        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
-            <input type="number" class="form-control" ng-model="doctors" placeholder="Doctors" value="2">
+
+        <div class="form-group" ng-class="{'has-error': !game.cops || game.cops > game.maxPlayers - game.doctors - game.mafiosi - game.minVillagers, 'has-success': game.cops > 0}">
+            <label for="cops">Cops</label>
+            <input type="number" integer min="1" max="{{game.maxPlayers - game.doctors - game.mafiosi - game.minVillagers | min:1}}" id="cops" class="form-control" ng-model="game.cops" required placeholder="Cops">
         </div>
-        <div ng-class="{'has-error': maxPlayers < 8, 'has-success': maxPlayers >= 8}">
-            <input type="number" class="form-control" ng-model="mafiosi" placeholder="Mafiosi" value="3">
+
+        <div class="form-group" ng-class="{'has-error': !game.doctors || game.doctors > game.maxPlayers - game.cops - game.mafiosi - game.minVillagers, 'has-success': game.doctors > 0}">
+            <label for="doctors">Doctors</label>
+            <input type="number" integer min="1" max="{{game.maxPlayers - game.cops - game.mafiosi - game.minVillagers | min:1}}" id="doctors" class="form-control" ng-model="game.doctors" required placeholder="Doctors">
         </div>
-        <div>
-            <input type="password" class="form-control" ng-model="gamePassword" placeholder="Password">
+
+        <div class="form-group" ng-class="{'has-error': !game.mafiosi || game.mafiosi > game.maxPlayers - game.cops - game.doctors - game.minVillagers, 'has-success': game.mafiosi > 0}">
+            <label for="mafiosi">Mafiosi</label>
+            <input type="number" integer min="1" max="{{game.maxPlayers - game.cops - game.doctors - game.minVillagers | min:1}}" id="mafiosi" class="form-control" ng-model="game.mafiosi" required placeholder="Mafiosi">
         </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" class="form-control" ng-model="game.password" placeholder="Password">
+        </div>
+
         <input type="submit" class="btn btn-primary">
     </form>
 </div>

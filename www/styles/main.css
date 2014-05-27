@@ -19,41 +19,62 @@ img#logo {
 }
 
 #chatContainer {
-    height: 40%;
-    width: 100%;
-    overflow: hidden;
+    width: 80%;
+    float: left;
 }
 
 #log {
     background: white;
     margin: 0;
     padding: 0.5em 0.5em 0.5em 0.5em;
-    height: 100%;
+    min-height: 500px;
     overflow: auto;
     float: left;
     min-width: 200px;
-    width: 80%;
 }
 
 #playersList {
-    background: white;
-    height: 100%;
-    overflow: auto;
+    min-height: 500px;
     float: left;
     min-width: 200px;
-    width: 19%;
+    margin-left: 5px;
 }
 
 #playersList ul {
-    list-style-type: none;
-    padding-left: 1em;
 }
 
-#playersList ul li {
-    background: url("../img/mafia.png") no-repeat left top;
-    padding: 5px 0px 0px 35px;
-    list-style: none;
-    margin: 0;
+#playersList ul li.player {
+    padding-left: 40px;
+}
+
+div.playerName {
+    width: 100%;
+    cursor: pointer;
+}
+span.playerContextMenuCaret {
+    margin-top: 8px;
+}
+ul.playerContextMenu {
+    width: 100%;
+}
+
+#playersList ul li.player-state-new {
+    background: url("../img/player-new.png") no-repeat 5px 50%;
+}
+#playersList ul li.player-state-villager {
+    background: url("../img/player-villager.png") no-repeat 5px 50%;
+}
+#playersList ul li.player-state-mafia {
+    background: url("../img/player-mafia.png") no-repeat 5px 50%;
+}
+#playersList ul li.player-state-doctor {
+    background: url("../img/player-doctor.png") no-repeat 5px 50%;
+}
+#playersList ul li.player-state-cop {
+    background: url("../img/player-cop.png") no-repeat 5px 50%;
+}
+#playersList ul li.player-state-dead {
+    background: url("../img/player-dead.png") no-repeat 5px 50%;
 }
 
 #chatForm {
@@ -115,7 +136,7 @@ div#openGames ul li {
 }
 
 div#createGame {
-    width: 600px;
+    max-width: 600px;
 }
 
 div.gamesListContainer {

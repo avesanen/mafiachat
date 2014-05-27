@@ -6,9 +6,9 @@ var app = angular.module(
         'ngRoute',
         'ngSanitize',
         'ui.bootstrap',
-        //'mafiachat.filters',
-         'mafiachat.services',
-         'mafiachat.controllers'
+        'mafiachat.services',
+        'mafiachat.filters',
+        'mafiachat.controllers'
     ]
 );
 
