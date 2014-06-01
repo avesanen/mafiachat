@@ -1,10 +1,19 @@
-<h1>{{gameInfo.game.name}}</h1>
+<div class="clearfix">
+    <h1 class="pull-left">{{gameInfo.game.name}}</h1>
+
+    <div ng-if="thisPlayer.admin && gameInfo.game.state == 'lobby'" class="pull-left startGameBtn">
+        <button ng-click="startGame()" class="btn btn-success">Start game</button>
+    </div>
+</div>
 
 <div id="chatContainer">
     <div id="log" class="form-control">
-        <ul>
+        <ul class="list-unstyled">
             <li ng-repeat="message in gameInfo.game.messageBuffer">
-                <div>{{message.data.player.name}} - {{message.data.faction}} - {{message.data.message}}</div>
+                <div ng-class="message.data.faction">
+                    {{message.data.date}} -
+                    <b>{{message.data.player.name}}</b>: {{message.data.message}}
+                </div>
             </li>
         </ul>
     </div>
@@ -16,8 +25,10 @@
                     <div class="input-group-btn">
                         <select class="form-control" id="msgtype" ng-model="msgType">
                             <option value="" disabled selected>Select chat room</option>
-                            <option value="villagerChat">Villager Chat</option>
-                            <option value="mafiaChat">Mafia Chat</option>
+                            <option value="villager">Villager Chat</option>
+                            <option ng-if="thisPlayer.faction == 'mafioso'" value="mafia">Mafia Chat</option>
+                            <option ng-if="thisPlayer.faction == 'cop'" value="cop">Cop Chat</option>
+                            <option ng-if="thisPlayer.faction == 'doctor'" value="doctor">Doctor Chat</option>
                         </select>
                     </div>
                     <input class="form-control" type="text" id="msg" ng-model="msg" size="64"/>
@@ -32,16 +43,16 @@
 
     <div id="playersList" class="panel panel-default hidden-xs">
         <ul class="list-group">
-            <li class="list-group-item player animate-repeat player-state-{{player.state}}" dropdown is-open="status.isopen" title="{{roleDescription[player.state]}}" ng-repeat="player in gameInfo.game.players">
+            <li class="list-group-item player animate-repeat player-state-{{player == thisPlayer ? player.faction : player.state}}" dropdown is-open="status.isopen" title="{{roleDescription[player.state]}}" ng-repeat="player in gameInfo.game.players">
                 <div class="playerName btn-group dropdown-toggle">
                     {{player.name}} <span class="playerContextMenuCaret caret pull-right"></span>
                     <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
                 </div>
-                <ul class="playerContextMenu dropdown-menu" role="menu">
-                    <li><a href ng-click="vote(player)">Vote</a></li>
-                    <li><a href ng-click="kill(player)">Kill</a></li>
-                    <li><a href ng-click="identify(player)">Identify</a></li>
-                    <li><a href ng-click="heal(player)">Heal</a></li>
+                <ul ng-if="player != thisPlayer || thisPlayer.faction == 'doctor'" class="playerContextMenu dropdown-menu" role="menu">
+                    <li ng-if="thisPlayer != player"><a href ng-click="vote(player)">Vote</a></li>
+                    <li ng-if="thisPlayer.faction == 'mafioso'"><a href ng-click="kill(player)">Kill</a></li>
+                    <li ng-if="thisPlayer.faction == 'cop'"><a href ng-click="identify(player)">Identify</a></li>
+                    <li ng-if="thisPlayer.faction == 'doctor'"><a href ng-click="heal(player)">Heal</a></li>
                 </ul>
             </li>
         </ul>

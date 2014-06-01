@@ -63,9 +63,17 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
 
     $scope.createGame = function() {
         $scope.game.needsPassword = $scope.game.password != "";
-        console.log("PASS:" , $scope.game.password, $scope.game.needsPassword);
         $rootScope.games.push($scope.game);
         $location.path("/game");
+    }
+
+    $scope.startGame = function() {
+        if ($scope.thisPlayer.admin) {
+            var message = {data:{}};
+            message.msgType = 'actionMessage';
+            message.data.action = 'startGame';
+            WebSocket.sendMsg(message);
+        }
     }
 
     $scope.sendMsg = function() {
@@ -74,75 +82,42 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
             return false;
         }
 
+        sendChatMessage($scope.msgType, $scope.msg);
+    }
+
+    var sendChatMessage = function(type, msg) {
         var message = {data:{}};
-        var type = $scope.msgType;
-
-        if (type === 'villagerChat') {
-            message.msgType = 'chatMessage';
-            message.data.faction = 'villager';
-            message.data.message = $scope.msg;
-            message.data.player = {};
-            message.data.player.name = $rootScope.name;
-        }
-        if (type === 'mafiaChat') {
-            message.msgType = 'chatMessage';
-            message.data.faction = 'mafia';
-            message.data.message = $scope.msg;
-            message.data.player = {};
-            message.data.player.name = $rootScope.name;
-        }
-
+        message.msgType = 'chatMessage';
+        message.data.faction = type;
+        message.data.message = msg;
+        message.data.player = {};
+        message.data.player.name = $rootScope.name;
         WebSocket.sendMsg(message);
         $scope.msg = "";
     }
 
-    $scope.vote = function(player) {
+    var sendActionMessage = function(action, playerName) {
         var message = {data:{}};
         message.msgType = 'actionMessage';
-        message.data.action = 'vote';
-        message.data.target = player.name;
+        message.data.action = action;
+        message.data.target = playerName;
         WebSocket.sendMsg(message);
-        /*
-        // TODO: Move this logic in backend
-        $scope.log += "<br><b>*** " + $rootScope.name + " voted for player " + player.name + "!</b>";
-        player.votes++;
-        var highestVotedPlayer = player;
-        for (var i = 0; i < $scope.gameInfo.game.players.length; i++) {
-            var p = $scope.gameInfo.game.players[i];
-            if (p.votes > 0) {
-                p.voteLevel = 'warning';
-                if (p.votes > highestVotedPlayer.votes) {
-                    highestVotedPlayer = p;
-                }
-            }
-        }
+    }
 
-        highestVotedPlayer.voteLevel = 'danger';
-        // Highlight all players with same vote count
-        for (var i = 0; i < $scope.gameInfo.game.players.length; i++) {
-            var p = $scope.gameInfo.game.players[i];
-            if (p.votes == highestVotedPlayer.votes) {
-                p.voteLevel = 'danger';
-            }
-        }
-        */
+    $scope.vote = function(player) {
+        sendActionMessage("vote", player.name);
     };
 
     $scope.kill = function(player) {
-        //$scope.log += "<br><b>*** " + $rootScope.name + " kills player " + player.name + "!</b>";
+        sendActionMessage("kill", player.name);
     };
 
     $scope.identify = function(player) {
-        var isMafioso = true; // TODO: from backend
-        if (isMafioso) {
-            //$scope.log += "<br><b>*** " + player.name + " is a mafioso!</b>";
-        } else {
-            //$scope.log += "<br><b>*** " + player.name + " ain't a mafioso.</b>";
-        }
+        sendActionMessage("identify", player.name);
     };
 
     $scope.heal = function(player) {
-        //$scope.log += "<br><b>*** " + $rootScope.name + " heals player " + player.name + "!</b>";
+        sendActionMessage("heal", player.name);
     };
 }]);
 
