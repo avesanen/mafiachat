@@ -60,7 +60,7 @@ angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$rootScope'
 
         var message = {data:{}};
         message.msgType = 'login';
-        message.data.player = $rootScope.name;
+        message.data.name = $rootScope.name;
         message.data.gameId = this.game.id;
 
         WebSocket.sendDeferMsg(message).
