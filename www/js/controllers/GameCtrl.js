@@ -3,8 +3,11 @@
 angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$scope', '$location', 'WebSocket', 'ResponseHandler', function($rootScope, $scope, $location, WebSocket, ResponseHandler) {
     WebSocket.setScope($scope);
 
-    $scope.log = "<b>Welcome " + $scope.name + "!</b>";
-
+    //$scope.log = "<b>Welcome " + $scope.name + "!</b>";
+    if (!$scope.gameInfo) {
+        $location.path("/login");
+    }
+    
     if (!$scope.games) {
         $rootScope.games = [];
         $scope.games = [];
@@ -67,7 +70,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
 
     $scope.sendMsg = function() {
         if (!$scope.msg || !$scope.msgType) {
-            $scope.log += "<br /><span class='glyphicon glyphicon-exclamation-sign text-danger'></span><span class='text-danger'> Select chat room and enter a message</span>";
+            //$scope.log += "<br /><span class='glyphicon glyphicon-exclamation-sign text-danger'></span><span class='text-danger'> Select chat room and enter a message</span>";
             return false;
         }
 
@@ -94,6 +97,12 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     }
 
     $scope.vote = function(player) {
+        var message = {data:{}};
+        message.msgType = 'actionMessage';
+        message.data.action = 'vote';
+        message.data.target = player.name;
+        WebSocket.sendMsg(message);
+        /*
         // TODO: Move this logic in backend
         $scope.log += "<br><b>*** " + $rootScope.name + " voted for player " + player.name + "!</b>";
         player.votes++;
@@ -116,23 +125,24 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
                 p.voteLevel = 'danger';
             }
         }
+        */
     };
 
     $scope.kill = function(player) {
-        $scope.log += "<br><b>*** " + $rootScope.name + " kills player " + player.name + "!</b>";
+        //$scope.log += "<br><b>*** " + $rootScope.name + " kills player " + player.name + "!</b>";
     };
 
     $scope.identify = function(player) {
         var isMafioso = true; // TODO: from backend
         if (isMafioso) {
-            $scope.log += "<br><b>*** " + player.name + " is a mafioso!</b>";
+            //$scope.log += "<br><b>*** " + player.name + " is a mafioso!</b>";
         } else {
-            $scope.log += "<br><b>*** " + player.name + " ain't a mafioso.</b>";
+            //$scope.log += "<br><b>*** " + player.name + " ain't a mafioso.</b>";
         }
     };
 
     $scope.heal = function(player) {
-        $scope.log += "<br><b>*** " + $rootScope.name + " heals player " + player.name + "!</b>";
+        //$scope.log += "<br><b>*** " + $rootScope.name + " heals player " + player.name + "!</b>";
     };
 }]);
 

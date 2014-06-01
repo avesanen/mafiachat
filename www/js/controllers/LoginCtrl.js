@@ -11,7 +11,7 @@ angular.module('mafiachat.controllers').controller('LoginCtrl', ['$rootScope', '
         }
 
         var message = {data:{}};
-        message.msgType = 'login';
+        message.msgType = 'loginMessage';
         message.data.name = $scope.name;
         message.data.password = $scope.password;
 

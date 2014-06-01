@@ -61,7 +61,7 @@ func (c *connection) reader() {
 
 // Write message as byte array to connection, with messagetype
 func (c *connection) write(mt int, payload []byte) error {
-	log.Print("connection.write() called")
+	//log.Print("connection.write() called")
 	c.ws.SetWriteDeadline(time.Now().Add(writeWait))
 	return c.ws.WriteMessage(mt, payload)
 }

@@ -11,10 +11,8 @@ import (
 
 var gameList = make(map[string]*game)
 
-// Serve static files as requested
 func staticHandler(w http.ResponseWriter, r *http.Request) {
-	file := r.URL.Query().Get(":file")
-	http.ServeFile(w, r, "./www/"+file)
+	http.ServeFile(w, r, "./www/game.html")
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,21 +80,17 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 func Init() {
 	log.Println("Starting MafiaChat Server")
 
-	// Set mux routes
 	r := mux.NewRouter()
 
-	// Handler for static files under gameId url
 	r.Path("/g/{gameId:[a-f0-9]{16}}/").
 		HandlerFunc(staticHandler).
 		Name("static files")
 
-	// Handler for websocket connections
 	r.Path("/g/{gameId:[a-f0-9]{16}}/ws/").
 		HandlerFunc(websocketHandler).
 		Name("websocket")
 
-	// Root url handler
-	r.Path("/").
+	r.Path("/g/").
 		HandlerFunc(rootHandler).
 		Name("root")
 

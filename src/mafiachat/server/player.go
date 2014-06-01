@@ -10,27 +10,17 @@ type player struct {
 	Name       string      `json:"name"`
 	Password   string      `json:"-"`
 	State      string      `json:"state"`
+	Faction    string      `json:"faction"`
 	Connection *connection `json:"-"`
+	Votes      int         `json:"votes"`
+	VotingFor  *player     `json:"-"`
+	Admin      bool        `json:"admin"`
 }
 
 func newPlayer() *player {
 	p := &player{}
-	p.State = "new"
-	p.Name = "anonymous"
 	p.Id = uuid()
 	return p
-}
-
-func (p *player) sendError(error string) {
-	errorMsg := &errorMessage{}
-	errorMsg.MsgType = "error"
-	errorMsg.Data.Message = error
-	errorMsgJson, err := json.Marshal(errorMsg)
-	if err != nil {
-		log.Println("json can't marshal errormsg", error)
-		return
-	}
-	p.Connection.Outbound <- errorMsgJson
 }
 
 func (p *player) msgParser(g *game) {
@@ -54,41 +44,28 @@ func (p *player) msgParser(g *game) {
 		}
 		switch {
 		case msg.MsgType == "chatMessage":
-			log.Println("Chatmessage received", string(s))
-			g.broadcast([]byte(s))
-		case msg.MsgType == "login":
-			log.Println("login received", string(s))
-			var login loginMessage
-			err := json.Unmarshal([]byte(s), &login)
+			var chatMsg chatMessage
+			err := json.Unmarshal([]byte(s), &chatMsg)
 			if err != nil {
-				log.Println("json can't unmarshal loginmessage", s, err)
+				log.Println("json can't unmarshal chatMessage", string(s), err)
 			}
-			p.Name = login.Data.Name
-			p.Password = login.Data.Password
-			g.loginPlayer(p)
-		case msg.MsgType == "gameAuth":
-			log.Println("Game auth received", string(s))
-			// TODO: Read id and password from the msg and check if valid
-			var login loginMessage
-			err := json.Unmarshal([]byte(s), &login)
+			g.chatMessage(&chatMsg, p)
+		case msg.MsgType == "actionMessage":
+			var actionMsg actionMessage
+			err := json.Unmarshal([]byte(s), &actionMsg)
 			if err != nil {
-				log.Println("json can't unmarshal gameauth message", s, err)
+				log.Println("json can't unmarshal actionMessage", string(s), err)
 			}
-			if login.Data.Password == "apina" {
-				g.broadcast([]byte("{\"data\":{\"success\":true}}"));
-			} else {
-				g.broadcast([]byte("{\"data\":{\"success\":false}}"));
+			g.actionMessage(&actionMsg, p)
+		case msg.MsgType == "loginMessage":
+			var loginMsg loginMessage
+			err := json.Unmarshal([]byte(s), &loginMsg)
+			if err != nil {
+				log.Println("json can't unmarshal loginMessage", string(s), err)
 			}
-		case msg.MsgType == "vote":
-			log.Println("Voted for player", string(s))
-		case msg.MsgType == "identify":
-			log.Println("Identified player", string(s))
-		case msg.MsgType == "kill":
-			log.Println("Killed player", string(s))
-		case msg.MsgType == "heal":
-			log.Println("Healed player", string(s))
+			g.loginMessage(&loginMsg, p)
 		default:
-			log.Println("Unknown message type ", msg.MsgType, ",", s, msg)
+			log.Println("Unknown message type ", msg.MsgType, ",", string(s), msg)
 		}
 	}
 }

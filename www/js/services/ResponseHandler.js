@@ -10,16 +10,22 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
         }
 
         var now = new Date();
-        $scope.log += ('0'  + now.getHours()).slice(-2)+':'+('0' + now.getMinutes()).slice(-2) + " ";
+
         switch (msg.msgType) {
-            case 'joinGame':
+            /*case 'joinGame':
                 if (!$scope.players) $scope.players = [];
                 $scope.players.push(msg.data.name);
                 $scope.log += "<b>" + msg.data.name + " joined the game!</b>";
-                break;
-            case 'chatMessage':
+                break;*/
+            /*case 'chatMessage':
+                $scope.log += ('0'  + now.getHours()).slice(-2)+':'+('0' + now.getMinutes()).slice(-2) + " ";
                 $scope.log += "<b>"+msg.data.player.name+":</b>&nbsp;<span class='"+msg.data.faction+"Message'>" + msg.data.message + "</span>";
+                break;*/
+            /*case 'serverMessage':
+                $scope.log += ('0'  + now.getHours()).slice(-2)+':'+('0' + now.getMinutes()).slice(-2) + " ";
+                $scope.log += "<b>***SERVER***</b>&nbsp;<span class='"+msg.data.type+"Message'>" + msg.data.message + "</span>";
                 break;
+                */
             case 'login':
                 return;
             case 'gameInfo':
@@ -32,19 +38,24 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 if (!$scope.gameInfo.game.players) {
                     $scope.gameInfo.game.players = [];
                 }
+                if (!$scope.gameInfo.game.messageBuffer) {
+                    $scope.gameInfo.game.messageBuffer = [];
+                }
 
                 $scope.gameName = msg.data.game.name;
 
-                var oldPlayers = $scope.gameInfo.game.players;
+                //var oldPlayers = $scope.gameInfo.game.players;
                 $scope.gameInfo = msg.data;
-                var newPlayers = $scope.gameInfo.game.players;
+                //var newPlayers = $scope.gameInfo.game.players;
 
                 // check if someone joined or leaved the game and who that was (oldPlayers != gameInfo.game.players)
+                /*
                 if (newPlayers.length > oldPlayers.length) {
                     $scope.log += getJoinedOrPartedPlayer(newPlayers, oldPlayers, true) + " joined the game";
                 } else {
                     $scope.log += getJoinedOrPartedPlayer(oldPlayers, newPlayers, false) + " left the game";
                 }
+                */
 
                 break;
         }

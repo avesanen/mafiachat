@@ -1,7 +1,13 @@
 <h1>{{gameInfo.game.name}}</h1>
 
 <div id="chatContainer">
-    <div id="log" class="form-control" data-ng-bind-html="log"></div>
+    <div id="log" class="form-control">
+        <ul>
+            <li ng-repeat="message in gameInfo.game.messageBuffer">
+                <div>{{message.data.player.name}} - {{message.data.faction}} - {{message.data.message}}</div>
+            </li>
+        </ul>
+    </div>
 
     <form class="form-inline" id="chatForm">
         <div class="row">
