@@ -47,25 +47,19 @@ func (p *player) msgParser(g *game) {
 			var chatMsg chatMessage
 			err := json.Unmarshal([]byte(s), &chatMsg)
 			if err != nil {
-				log.Println("json can't unmarshal chatMessage", string(s), err)
+				log.Println("json can't unmarshal chatMessage:", string(s), err)
 			}
 			g.chatMessage(&chatMsg, p)
 		case msg.MsgType == "actionMessage":
 			var actionMsg actionMessage
 			err := json.Unmarshal([]byte(s), &actionMsg)
 			if err != nil {
-				log.Println("json can't unmarshal actionMessage", string(s), err)
+				log.Println("json can't unmarshal actionMessage:", string(s), err)
 			}
 			g.actionMessage(&actionMsg, p)
-		case msg.MsgType == "loginMessage":
-			var loginMsg loginMessage
-			err := json.Unmarshal([]byte(s), &loginMsg)
-			if err != nil {
-				log.Println("json can't unmarshal loginMessage", string(s), err)
-			}
-			g.loginMessage(&loginMsg, p)
 		default:
-			log.Println("Unknown message type ", msg.MsgType, ",", string(s), msg)
+			log.Println("Unknown message type ", msg.MsgType, ":", string(s), msg)
+			log.Println(p, g)
 		}
 	}
 }

@@ -48,6 +48,9 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func websocketHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		log.Println("WebSocketHandler DONE!")
+	}()
 	// Get gameId from mux vars
 	vars := mux.Vars(r)
 	gameId := vars["gameId"]
@@ -76,15 +79,53 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	c := newConnetion(ws)
 	p := newPlayer()
+	p.State = "loggingIn"
 	p.Connection = c
 
+	// Get existing or create new game.
+	var g *game = nil
 	if _, ok := gameList[gameId]; ok {
-		gameList[gameId].addPlayer(p)
+		g = gameList[gameId]
 	} else {
-		g := newGame()
+		g = newGame()
 		g.Id = gameId
 		gameList[g.Id] = g
-		g.addPlayer(p)
+	}
+
+	// Get login from player, until game accepts player in.
+	for {
+		s, ok := <-p.Connection.Inbound
+		if !ok {
+			return
+		}
+
+		var msg message
+		err := json.Unmarshal([]byte(s), &msg)
+		if err != nil {
+			log.Println("json can't unmarshal message:", string(s), err)
+			continue
+		}
+		if p.State == "loggingIn" {
+			switch {
+			case msg.MsgType == "loginMessage":
+				var loginMsg loginMessage
+				err := json.Unmarshal([]byte(s), &loginMsg)
+				if err != nil {
+					log.Println("json can't unmarshal loginMessage", string(s), err)
+				}
+				err = g.loginMessage(&loginMsg, p)
+				if err == nil {
+					log.Println("Player logged in to game")
+					return
+				} else {
+					log.Println("Can't login player to game:", err)
+					continue
+				}
+			default:
+				log.Println("Expecting loginMessage, got ", msg.MsgType, ":", string(s), msg)
+			}
+			continue
+		}
 	}
 }
 

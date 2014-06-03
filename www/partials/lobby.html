@@ -12,6 +12,7 @@
             <div class="playerName btn-group dropdown-toggle">
                 {{player.name}}<span class="playerContextMenuCaret caret pull-right"></span>
                 <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
+                <span>{{player.state}}</span>
             </div>
             <ul ng-if="player != thisPlayer || thisPlayer.faction == 'doctor'" class="playerContextMenu dropdown-menu" role="menu">
                 <li ng-if="thisPlayer != player"><a href ng-click="vote(player)">Vote</a></li>
