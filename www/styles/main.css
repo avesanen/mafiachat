@@ -1,7 +1,14 @@
+@font-face
+{
+    font-family: Lobster;
+    src: url(../fonts/Lobster.ttf);
+}
+
 html {
     margin: 0 20px;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.9))), url('img/bgtile.png') repeat;
     min-height: 100%;
+	background-attachment:fixed;
 }
 
 body {
@@ -228,19 +235,65 @@ div.gamesListContainer {
     max-width: 600px;
 }
 
+.gamesList{
+	box-shadow: 1px 1px 10px #000000;
+}
+
+div.list-group-item{
+	background-color:#151515;
+	border: 1px solid #050505;
+}
+
+.dl-horizontal{
+	border-radius:5px;
+	background-color:#ededed;
+	color:#050505;
+}
+
+/*Text formatting*/
 a {
     cursor: pointer;
 }
 a.disabled {
     cursor: default;
 }
-h1{
-    color:#bf1515;
+h1,
+h2{
+	font-family: Lobster;
+    color:#b22020;
     font-weight:bold;
     text-shadow: 5px 5px 5px #000000;
     padding-bottom:20px;
 }
 
-h2, label {
-    color: white;
+label {
+    color:#daa445;
+    font-weight:bold;
+    text-shadow: 5px 5px 5px #000000;
+    padding-bottom:20px;;
+}
+
+h4.list-group-item-heading{
+	font-family: Lobster;
+	color:#ebc029;
+	padding-bottom:10px;
+	text-shadow: 2px 2px 5px #000000;
+}
+
+/*Buttons*/
+.btn-success{
+	background-color: #b22020;
+	border-color: #a31d1d;
+	font-weight:bold;
+	color:#dedede;
+}
+
+.btn-success:hover{
+	background-color: #c12323;
+	border-color: #a31d1d;
+}
+
+.btn-success:disabled{
+	background-color: #d44f4f;
+	border-color: #d44f4f;
 }

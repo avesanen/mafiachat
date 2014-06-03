@@ -1,7 +1,7 @@
 <div class="gamesListContainer center-block">
     <input type="button" class="btn btn-success" value="Create new game" ng-click="newGame()" />
 
-    <h2>OPEN GAMES</h2>
+    <h2>Open Games</h2>
     <div class="gamesList">
         <div class="list-group">
             <div ng-show="game.state == 'open'" class="list-group-item" ng-repeat="game in games">
@@ -26,7 +26,7 @@
         </div>
     </div>
 
-    <h2>ONGOING GAMES</h2>
+    <h2>Ongoing Games</h2>
     <div class="gamesList">
         <div class="list-group">
             <div ng-if="game.state != 'open'" class="list-group-item" ng-repeat="game in games">
