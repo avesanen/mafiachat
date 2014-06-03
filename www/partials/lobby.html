@@ -6,6 +6,23 @@
     </div>
 </div>
 
+<div id="playersList" class="panel panel-default">
+    <ul class="list-group">
+        <li class="list-group-item player animate-repeat player-state-{{player == thisPlayer ? player.faction : player.state}}" dropdown is-open="status.isopen" title="{{roleDescription[player.state]}}" ng-repeat="player in gameInfo.game.players">
+            <div class="playerName btn-group dropdown-toggle">
+                {{player.name}}<span class="playerContextMenuCaret caret pull-right"></span>
+                <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
+            </div>
+            <ul ng-if="player != thisPlayer || thisPlayer.faction == 'doctor'" class="playerContextMenu dropdown-menu" role="menu">
+                <li ng-if="thisPlayer != player"><a href ng-click="vote(player)">Vote</a></li>
+                <li ng-if="thisPlayer.faction == 'mafioso'"><a href ng-click="kill(player)">Kill</a></li>
+                <li ng-if="thisPlayer.faction == 'cop'"><a href ng-click="identify(player)">Identify</a></li>
+                <li ng-if="thisPlayer.faction == 'doctor'"><a href ng-click="heal(player)">Heal</a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
 <div id="chatContainer">
     <div id="log" class="form-control">
         <ul class="list-unstyled">
@@ -18,42 +35,22 @@
         </ul>
     </div>
 
-    <form class="form-inline" id="chatForm">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="input-group">
-                    <div class="input-group-btn">
-                        <select class="form-control" id="msgtype" ng-model="msgType">
-                            <option value="" disabled selected>Select chat room</option>
-                            <option value="villager">Villager Chat</option>
-                            <option ng-if="thisPlayer.faction == 'mafioso'" value="mafia">Mafia Chat</option>
-                            <option ng-if="thisPlayer.faction == 'cop'" value="cop">Cop Chat</option>
-                            <option ng-if="thisPlayer.faction == 'doctor'" value="doctor">Doctor Chat</option>
-                        </select>
-                    </div>
-                    <input class="form-control" type="text" id="msg" ng-model="msg" size="64"/>
-                <span class="input-group-btn">
-                    <input class="btn btn-default" type="submit" value="Send" ng-click="sendMsg()" />
-                </span>
-                </div>
-            </div>
+    <form name="chatForm" class="form" id="chatForm" novalidate>
+        <div id="sendChatMsgBtn">
+            <input class="form-control btn btn-default" type="submit" value="Send" ng-click="sendMsg()" />
         </div>
+        <div id="chatRoomSelection" ng-class="chatForm.msgtype.$invalid ? 'has-error has-feedback' : 'has-success'">
+            <select class="form-control" name="msgtype" id="msgtype" ng-model="msgType" required>
+                <option value="" disabled selected>Select chat room</option>
+                <option value="villager">Villager Chat</option>
+                <option ng-if="thisPlayer.faction == 'mafioso'" value="mafia">Mafia Chat</option>
+                <option ng-if="thisPlayer.faction == 'cop'" value="cop">Cop Chat</option>
+                <option ng-if="thisPlayer.faction == 'doctor'" value="doctor">Doctor Chat</option>
+            </select>
+        </div>
+        <div id="chatMsg" ng-class="chatForm.msg.$invalid ? 'has-error' : 'has-success'">
+            <input class="form-control" type="text" name="msg" id="msg" ng-model="msg" size="64" required />
+        </div>
+
     </form>
 </div>
-
-    <div id="playersList" class="panel panel-default hidden-xs">
-        <ul class="list-group">
-            <li class="list-group-item player animate-repeat player-state-{{player == thisPlayer ? player.faction : player.state}}" dropdown is-open="status.isopen" title="{{roleDescription[player.state]}}" ng-repeat="player in gameInfo.game.players">
-                <div class="playerName btn-group dropdown-toggle">
-                    {{player.name}} <span class="playerContextMenuCaret caret pull-right"></span>
-                    <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
-                </div>
-                <ul ng-if="player != thisPlayer || thisPlayer.faction == 'doctor'" class="playerContextMenu dropdown-menu" role="menu">
-                    <li ng-if="thisPlayer != player"><a href ng-click="vote(player)">Vote</a></li>
-                    <li ng-if="thisPlayer.faction == 'mafioso'"><a href ng-click="kill(player)">Kill</a></li>
-                    <li ng-if="thisPlayer.faction == 'cop'"><a href ng-click="identify(player)">Identify</a></li>
-                    <li ng-if="thisPlayer.faction == 'doctor'"><a href ng-click="heal(player)">Heal</a></li>
-                </ul>
-            </li>
-        </ul>
-    </div>

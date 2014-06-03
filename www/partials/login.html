@@ -8,7 +8,7 @@
             <div ng-class="{'has-error': !password, 'has-success': password}">
                 <input required class="form-control" type="password" ng-model="password" placeholder="Password" />
             </div>
-            <input class="btn btn-primary" type="submit" value="OK" ng-click="login()" />
+            <input class="btn btn-primary" type="submit" value="Login" ng-click="login()" />
         </form>
         <p class="loginError alert alert-danger center-block" ng-show="errorMsg">
             {{errorMsg}}

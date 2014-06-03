@@ -49,28 +49,8 @@ angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$rootScope'
 
     $scope.joinGame = function() {
         console.log("Joining game: " + this.game.id);
+        $location.path("/game");
 
-        if (!$rootScope.name && !sessionStorage.name) {
-            GameService.setGameData(this.game.id);
-            $location.path("/login");
-            return;
-        } else if (!$rootScope.name) {
-            $rootScope.name = sessionStorage.name;
-        }
-
-        var message = {data:{}};
-        message.msgType = 'loginMessage';
-        message.data.name = $rootScope.name;
-        message.data.gameId = this.game.id;
-
-        WebSocket.sendDeferMsg(message).
-            then(function(resp) {
-                $rootScope.gameInfo = resp.data;
-                $location.path("/game");
-            }, function(error) {
-                $scope.errorMsg = error;
-            }
-        );
     }
 
     $scope.newGame = function() {

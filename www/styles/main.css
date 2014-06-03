@@ -1,16 +1,14 @@
 html {
-    height: 100%;
     margin: 0 20px;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.9))), url('img/bgtile.png') repeat;
-
+    min-height: 100%;
 }
 
 body {
     background-color:transparent;
-    height: 100%;
     padding-top: 70px;
-    padding-left:10%;
-    padding-right:20%;
+    padding-left: 10%;
+    padding-right: 10%;
 }
 
 img#logo {
@@ -18,29 +16,6 @@ img#logo {
 }
 
 #container {
-    height: 100%;
-}
-
-#chatContainer {
-    width: 80%;
-    float: left;
-}
-
-#log {
-    background: white;
-    margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
-    min-height: 500px;
-    overflow: auto;
-    float: left;
-    min-width: 200px;
-}
-
-#playersList {
-    min-height: 500px;
-    float: left;
-    min-width: 200px;
-    margin-left: 5px;
 }
 
 #playersList ul {
@@ -83,6 +58,111 @@ ul.playerContextMenu {
 #chatForm {
     margin-top: 3px;
     width: 100%;
+    float: left;
+}
+
+@media only screen and (min-width: 1200px) {
+    div#sendChatMsgBtn {
+        float: right;
+        width: 235px;
+    }
+
+    div#chatMsg {
+        margin: 0 240px;
+        min-width: 235px;
+    }
+
+    div#chatRoomSelection {
+        float: left;
+        width: 235px;
+    }
+
+    #log {
+        background: white;
+        margin: 0;
+        padding: 0.5em 0.5em 0.5em 0.5em;
+        min-height: 500px;
+        overflow: auto;
+        float: left;
+        min-width: 235px;
+    }
+
+    #playersList {
+        min-height: 500px;
+        float: right;
+        min-width: 200px;
+    }
+
+    #chatContainer {
+        margin-right: 210px;
+    }
+
+    div.startGameBtn {
+        padding: 23px 0 0 11px;
+    }
+}
+
+@media only screen and (max-width: 1199px) {
+    div#sendChatMsgBtn {
+        width: 100%;
+        margin-top: 68px;
+    }
+
+    div#chatMsg {
+        width: 100%;
+        margin-top: 1px;
+    }
+
+    div#chatRoomSelection {
+        width: 100%;
+        margin-top: -104px;
+    }
+
+    #log {
+        background: white;
+        margin: 0;
+        padding: 0.5em 0.5em 0.5em 0.5em;
+        min-height: 300px;
+        overflow: auto;
+        float: left;
+        min-width: 235px;
+    }
+
+    #playersList {
+        min-height: 300px;
+        float: right;
+        min-width: 150px;
+    }
+
+    #chatContainer {
+        margin-right: 155px;
+    }
+
+    div.startGameBtn {
+        padding: 23px 0 0 11px;
+    }
+}
+
+@media only screen and (max-width: 524px) {
+    #chatContainer {
+        margin-right: 0;
+    }
+    #playersList {
+        max-height: 43px;
+        width: 100%;
+        min-height: 43px;
+        float: left;
+        min-width: 235px;
+    }
+    div.startGameBtn {
+        padding: 0;
+        margin-bottom: 5px;
+        width: 100%;
+        min-width: 235px;
+    }
+    div.startGameBtn button {
+        width: 100%;
+    }
 }
 
 span.mafiaMessage {
@@ -113,19 +193,20 @@ span.villagerMessage {
 }
 
 input, select, textarea {
-    min-width: 200px;
+    min-width: 235px;
 }
 
 form#login input {
     width: 202px;
+    margin-bottom: 1px;
     display: inline;
 }
 form#login input.btn {
-    margin-top: 3px;
+    margin-top: 2px;
 }
 
 p.loginError {
-    width: 200px;
+    width: 235px;
     margin-top: 3px;
 }
 
@@ -143,7 +224,8 @@ div#createGame {
 }
 
 div.gamesListContainer {
-    width: 600px;
+    min-width: 270px;
+    max-width: 600px;
 }
 
 a {
@@ -159,6 +241,6 @@ h1{
     padding-bottom:20px;
 }
 
-div.startGameBtn {
-    padding: 23px 0 0 20px;
+h2, label {
+    color: white;
 }

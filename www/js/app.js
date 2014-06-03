@@ -17,10 +17,9 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider) {
     $routeProvider.when('/game', {templateUrl: '/partials/lobby.html', controller: 'GameCtrl'});
     $routeProvider.when('/createGame', {templateUrl: '/partials/createGame.html', controller: 'GameCtrl'});
     $routeProvider.when('/games', {templateUrl: '/partials/games.html', controller: 'MainCtrl'});
-    $routeProvider.otherwise({redirectTo: '/login'});
+    $routeProvider.otherwise({redirectTo: '/games'});
 }])
-.run(function($rootScope, $location) {
-
+.run(function($rootScope, $location, WebSocket) {
     $rootScope.home = function() {
         $location.path("/games");
     }
@@ -28,7 +27,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider) {
     $rootScope.$on('$routeChangeStart', function (event, next) {
         $rootScope.currentView = $location.path();
         // Check that login is done if any other page is requested than games listing
-        /*if ($location.path() != "/games" && $location.path() != "/login" && !$rootScope.name) {
+        if ($location.path() != "/games" && $location.path() != "/login" && !$rootScope.name) {
             // Check HTML5 storage
             if (sessionStorage.name) {
                 console.log("Loading user from session storage: " + sessionStorage.name);
@@ -37,7 +36,7 @@ app.config(['$routeProvider', '$locationProvider', function($routeProvider) {
                 $rootScope.requiredPath = $location.path();
                 $location.path("/login");
             }
-        }*/
+        }
     })
 });
 

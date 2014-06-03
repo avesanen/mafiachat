@@ -29,7 +29,7 @@
     <h2>ONGOING GAMES</h2>
     <div class="gamesList">
         <div class="list-group">
-            <div ng-show="game.state != 'open'" class="list-group-item" ng-repeat="game in games">
+            <div ng-if="game.state != 'open'" class="list-group-item" ng-repeat="game in games">
                 <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.maxPlayers}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">

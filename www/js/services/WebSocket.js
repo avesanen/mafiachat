@@ -9,9 +9,13 @@ angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope
 
     var scope = {};
     var defer;
+    var msgQueue = [];
+    var connectionOpened = false;
 
     ws.onopen = function(){
         console.log("Socket has been opened!");
+        connectionOpened = true;
+        handleQueue();
     };
 
     ws.onmessage = function(message) {
@@ -19,7 +23,12 @@ angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope
     };
 
     ws.onerror = function(error) {
+        console.log("WebSocket error: " + error);
         $rootScope.$apply(defer.reject(error));
+    }
+
+    Service.isConnected = function() {
+        return connectionOpened;
     }
 
     Service.setScope = function($scope) {
@@ -28,16 +37,26 @@ angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope
 
     Service.sendDeferMsg = function(request) {
         defer = $q.defer();
-        console.log('Sending request', request);
+        console.log('Sending defer request', request);
         ws.send(JSON.stringify(request));
         return defer.promise;
     };
 
     Service.sendMsg = function(request) {
-        defer = undefined;
-        console.log('Sending request', request);
-        ws.send(JSON.stringify(request));
+        if (!connectionOpened) {
+            msgQueue.push(request);
+        } else {
+            defer = undefined;
+            console.log('Sending request', request);
+            ws.send(JSON.stringify(request));
+        }
     };
+
+    function handleQueue() {
+        for (var i = 0; i < msgQueue.length; i++) {
+            Service.sendMsg(msgQueue[i]);
+        }
+    }
 
     function listener(data) {
         console.log("Received data from websocket: ", data);

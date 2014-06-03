@@ -3,13 +3,17 @@
 angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$scope', '$location', 'WebSocket', 'ResponseHandler', function($rootScope, $scope, $location, WebSocket, ResponseHandler) {
     WebSocket.setScope($scope);
 
-    //$scope.log = "<b>Welcome " + $scope.name + "!</b>";
-    if (!$scope.gameInfo) {
+    if (!$rootScope.name) {
         $location.path("/login");
+    } else {
+        var message = {data:{}};
+        message.msgType = 'loginMessage';
+        message.data.name = $rootScope.name;
+
+        WebSocket.sendMsg(message);
     }
-    
+
     if (!$scope.games) {
-        $rootScope.games = [];
         $scope.games = [];
     }
 
@@ -23,29 +27,6 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
         new:"Unknown"
     };
 
-    if (!$scope.gameInfo) $scope.gameInfo = {};
-    if (!$scope.gameInfo.game) $scope.gameInfo.game = {name:"Game"};
-    if (!$scope.gameInfo.game.players) {
-        $scope.gameInfo.game.players = [
-            {"name":$rootScope.name, "state":"mafia"},
-            {"name":"Jakke", "state":"villager", votes:0},
-            {"name":"Makke", "state":"doctor", votes:0},
-            {"name":"Sakke", "state":"cop", votes:0},
-            {"name":"Takke", "state":"dead", votes:0},
-            {"name":"Nakke", "state":"new", votes:0},
-            {"name":"Takke", "state":"dead", votes:0},
-            {"name":"Takke", "state":"dead", votes:0},
-            {"name":"Takke", "state":"dead", votes:0},
-            {"name":"Takke", "state":"dead", votes:0},
-            {"name":"Takke", "state":"dead", votes:0},
-            {"name":"Nakke", "state":"new", votes:0},
-            {"name":"Nakke", "state":"new", votes:0},
-            {"name":"Nakke", "state":"new", votes:0},
-            {"name":"Nakke", "state":"new", votes:0},
-            {"name":"Nakke", "state":"new", votes:0},
-            {"name":"Nakke", "state":"new", votes:0}
-        ];
-    }
 
     $scope.game = {
         "id":$scope.games.length,
@@ -78,7 +59,6 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
 
     $scope.sendMsg = function() {
         if (!$scope.msg || !$scope.msgType) {
-            //$scope.log += "<br /><span class='glyphicon glyphicon-exclamation-sign text-danger'></span><span class='text-danger'> Select chat room and enter a message</span>";
             return false;
         }
 
