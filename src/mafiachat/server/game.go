@@ -117,7 +117,7 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 	log.Println(msg.Data.Target)
 	log.Println("action message")
 	if msg.Data.Action == "vote" {
-		if g.State == "game" {
+		if g.State == "gameDay" {
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
 				//p.Connection.Outbound <- g.newError(err.Error())
@@ -130,11 +130,18 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			p.VotingFor = t
 			p.VotingFor.Votes++
 			g.chatMessage(g.newInfo(p.Name+" votes for "+t.Name+"."), p)
+			for i := 0; i < len(g.Players); i++ {
+				if g.Players[i].Votes > len(g.Players)/2 {
+					g.chatMessage(g.newInfo(g.Players[i].Name+" has majority vote."), p)
+					g.Players[i].Faction = "dead"
+				}
+			}
+
 		}
 	}
 	if msg.Data.Action == "startGame" {
 		if p.Admin == true && g.State == "lobby" {
-			g.State = "game"
+			g.State = "gameDay"
 			for i := 0; i < len(g.Players); i++ {
 				g.Players[i].Faction = "villager"
 			}
