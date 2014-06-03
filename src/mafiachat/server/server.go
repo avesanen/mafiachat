@@ -3,6 +3,7 @@ package server
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"log"
@@ -13,6 +14,17 @@ var gameList = make(map[string]*game)
 
 func staticHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./www/game.html")
+}
+
+func gamesList(w http.ResponseWriter, r *http.Request) {
+	js, err := json.Marshal(gameList)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +86,6 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		gameList[g.Id] = g
 		g.addPlayer(p)
 	}
-	//hs.addConnection <- &Connection{ws: ws, hubId: hubId}
 }
 
 func Init() {
@@ -93,6 +104,10 @@ func Init() {
 	r.Path("/g/").
 		HandlerFunc(rootHandler).
 		Name("root")
+
+	r.Path("/games.json").
+		HandlerFunc(gamesList).
+		Name("gameslist")
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www/")))
 

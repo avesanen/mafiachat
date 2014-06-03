@@ -11,6 +11,7 @@ type game struct {
 	State         string         `json:"state"`
 	Id            string         `json:"id"`
 	Name          string         `json:"name"`
+	Password      string         `json:"password"`
 	MessageBuffer []*chatMessage `json:"messageBuffer"`
 }
 
@@ -94,14 +95,9 @@ func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
 	if g.State == "lobby" {
 		chatMsg.Data.Faction = "lobby"
 		chatMsg.Data.Player = p
-		/*msg, err := json.Marshal(chatMsg)
-		if err != nil {
-			log.Println("Can't marshal chatMessage to json:", err)
-			return
-		}*/
-		g.MessageBuffer = append(g.MessageBuffer, chatMsg)
-		g.broadcastGameInfo()
 	}
+	g.MessageBuffer = append(g.MessageBuffer, chatMsg)
+	g.broadcastGameInfo()
 }
 
 func (g *game) getPlayerByName(s string) (*player, error) {
@@ -121,18 +117,29 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 	log.Println(msg.Data.Target)
 	log.Println("action message")
 	if msg.Data.Action == "vote" {
-		t, err := g.getPlayerByName(msg.Data.Target)
-		if err != nil {
-			//p.Connection.Outbound <- g.newError(err.Error())
-			return
+		if g.State == "game" {
+			t, err := g.getPlayerByName(msg.Data.Target)
+			if err != nil {
+				//p.Connection.Outbound <- g.newError(err.Error())
+				return
+			}
+			log.Println("Got t:", t)
+			if p.VotingFor != nil {
+				p.VotingFor.Votes--
+			}
+			p.VotingFor = t
+			p.VotingFor.Votes++
+			g.chatMessage(g.newInfo(p.Name+" votes for "+t.Name+"."), p)
 		}
-		log.Println("Got t:", t)
-		if p.VotingFor != nil {
-			p.VotingFor.Votes--
+	}
+	if msg.Data.Action == "startGame" {
+		if p.Admin == true && g.State == "lobby" {
+			g.State = "game"
+			for i := 0; i < len(g.Players); i++ {
+				g.Players[i].Faction = "villager"
+			}
+			g.chatMessage(g.newInfo(p.Name+" has started the game. Good luck."), p)
 		}
-		p.VotingFor = t
-		p.VotingFor.Votes++
-		g.chatMessage(g.newInfo(p.Name+" votes for "+t.Name+"."), p)
 	}
 	g.broadcastGameInfo()
 }
