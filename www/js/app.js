@@ -12,16 +12,28 @@ var app = angular.module(
     ]
 );
 
-app.config(['$routeProvider', '$locationProvider', function($routeProvider) {
+function configConstants($rootScope) {
+    $rootScope.minPlayers = 3;
+}
+
+app.config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/login', {templateUrl: '/partials/login.html', controller: 'LoginCtrl'});
     $routeProvider.when('/game', {templateUrl: '/partials/lobby.html', controller: 'GameCtrl'});
     $routeProvider.when('/createGame', {templateUrl: '/partials/createGame.html', controller: 'GameCtrl'});
     $routeProvider.when('/games', {templateUrl: '/partials/games.html', controller: 'MainCtrl'});
     $routeProvider.otherwise({redirectTo: '/games'});
 }])
-.run(function($rootScope, $location, WebSocket) {
+.run(function($rootScope, $location, $window) {
+    configConstants($rootScope);
+
+    if ($location.absUrl().indexOf("/g/") > 0) {
+        $location.path("/game");
+    }
+
     $rootScope.home = function() {
-        $location.path("/games");
+        if ($location.path() != "/games") {
+            $window.location.href = "/";
+        }
     }
 
     $rootScope.$on('$routeChangeStart', function (event, next) {

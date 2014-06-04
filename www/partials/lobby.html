@@ -2,19 +2,19 @@
     <h1 class="pull-left">{{gameInfo.game.name}}</h1>
 
     <div ng-if="thisPlayer.admin && gameInfo.game.state == 'lobby'" class="pull-left startGameBtn">
-        <button ng-click="startGame()" class="btn btn-success">Start game</button>
+        <button ng-click="startGame()" tooltip-trigger="mouseenter" tooltip-placement="right" tooltip="{{gameInfo.game.players.length < minPlayers ? 'Not enough players' : ''}}" class="btn btn-success">Start game</button>
     </div>
 </div>
 
 <div id="playersList" class="panel panel-default">
     <ul class="list-group">
-        <li class="list-group-item player animate-repeat player-state-{{player == thisPlayer ? player.faction : player.state}}" dropdown is-open="status.isopen" title="{{roleDescription[player.state]}}" ng-repeat="player in gameInfo.game.players">
+        <li class="list-group-item player animate-repeat player-state-{{player.faction}}" dropdown is-open="status.isopen" title="{{roleDescription[player.state]}}" ng-repeat="player in gameInfo.game.players">
             <div class="playerName btn-group dropdown-toggle">
-                {{player.name}}<span class="playerContextMenuCaret caret pull-right"></span>
+                {{player.name}}<span ng-if="contextMenuAvailable()" class="playerContextMenuCaret caret pull-right"></span>
                 <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
-                <span>{{player.state}}</span>
+                <span class="glyphicon glyphicon-stop" ng-class="'player-state-'+player.state"></span>
             </div>
-            <ul ng-if="player != thisPlayer || thisPlayer.faction == 'doctor'" class="playerContextMenu dropdown-menu" role="menu">
+            <ul ng-if="contextMenuAvailable()" class="playerContextMenu dropdown-menu" role="menu">
                 <li ng-if="thisPlayer != player"><a href ng-click="vote(player)">Vote</a></li>
                 <li ng-if="thisPlayer.faction == 'mafioso'"><a href ng-click="kill(player)">Kill</a></li>
                 <li ng-if="thisPlayer.faction == 'cop'"><a href ng-click="identify(player)">Identify</a></li>
@@ -38,7 +38,7 @@
 
     <form name="chatForm" class="form" id="chatForm" novalidate>
         <div id="sendChatMsgBtn">
-            <input class="form-control btn btn-default" type="submit" value="Send" ng-click="sendMsg()" />
+            <input class="form-control btn btn-default" tooltip-trigger="mouseenter" tooltip-placement="top" tooltip="{{!msgType ? 'Select chat room' : ''}}" type="submit" value="Send" ng-click="sendMsg()" />
         </div>
         <div id="chatRoomSelection" ng-class="chatForm.msgtype.$invalid ? 'has-error has-feedback' : 'has-success'">
             <select class="form-control" name="msgtype" id="msgtype" ng-model="msgType" required>
@@ -50,7 +50,7 @@
             </select>
         </div>
         <div id="chatMsg" ng-class="chatForm.msg.$invalid ? 'has-error' : 'has-success'">
-            <input class="form-control" type="text" name="msg" id="msg" ng-model="msg" size="64" required />
+            <input class="form-control" type="text" autocomplete="off" name="msg" id="msg" ng-model="msg" size="64" required />
         </div>
 
     </form>

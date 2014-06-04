@@ -13,7 +13,7 @@ import (
 var gameList = make(map[string]*game)
 
 func staticHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./www/game.html")
+	http.ServeFile(w, r, "./www/index.html")
 }
 
 func gamesList(w http.ResponseWriter, r *http.Request) {

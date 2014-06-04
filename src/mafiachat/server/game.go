@@ -29,7 +29,9 @@ func newGame() *game {
 	g.State = "lobby"
 	g.Name = "MafiosoGame"
 	g.Players = make([]*player, 0)
-	gameList[g.Id] = g
+	if g.Id != "" {
+		gameList[g.Id] = g
+	}
 	return g
 }
 
@@ -226,15 +228,15 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 	// New player
 	if g.State == "lobby" {
 		p.Name = msg.Data.Name
-		p.Password = msg.Data.Name
+		p.Password = msg.Data.Password
 		p.Faction = "villager"
-	} else if g.State == "game" {
+	} else if g.State == "gameDay" {
 		p.Name = msg.Data.Name
-		p.Password = msg.Data.Name
+		p.Password = msg.Data.Password
 		p.Faction = "ghost"
 	} else if g.State == "debrief" {
 		p.Name = msg.Data.Name
-		p.Password = msg.Data.Name
+		p.Password = msg.Data.Password
 		p.Faction = "ghost"
 	}
 	g.addPlayer(p)

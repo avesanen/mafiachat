@@ -1,17 +1,15 @@
 'use strict';
 
-angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$rootScope', '$scope', '$location', '$timeout', 'WebSocket', 'GameService', function($rootScope, $scope, $location, $timeout, WebSocket, GameService) {
-    if (!$rootScope.games) {
-        $rootScope.games = [
-            {"id":"23235-235234-23423", "name":"Jea tässä olis yks peli.", "state":"open", "cops":3, "mafiosi":3, "doctors": 2, "needsPassword":true, "maxPlayers":10, "players":[{"name":"juki"}, {"name":"antti"}]},
-            {"id":"23235-235234-87345", "name":"Menossa oleva peli.", "state":"ongoing", "cops":3, "mafiosi":3, "doctors": 2, "needsPassword":false, "maxPlayers":5, "players":[{"name":"juki"}, {"name":"antti"}, {"name":"jaakko"}, {"name":"juuso"}, {"name":"jani"}]},
-            {"id":"23235-235234-77543", "name":"Avoin peli 1.", "state":"open", "cops":3, "mafiosi":3, "doctors": 2, "needsPassword":true, "maxPlayers":100, "players":[]},
-            {"id":"23235-235234-56477", "name":"Avoin peli 2.", "state":"open", "cops":3, "mafiosi":3, "doctors": 2, "needsPassword":false, "maxPlayers":5, "players":[]}
-        ];
-    }
-
-    WebSocket.setScope($scope);
+angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$rootScope', '$scope', '$location', '$timeout', '$http', '$window', 'GameService', function($rootScope, $scope, $location, $timeout, $http, $window, GameService) {
     $scope.invalidPass = true;
+
+    $http({method: 'GET', url: '/games.json'}).
+        success(function(data, status, headers, config) {
+            $scope.games = data;
+        }).
+        error(function(data, status, headers, config) {
+            console.log("Unable to retrieve games. Error: ", data);
+        });
 
     var timer = false;
 
@@ -49,12 +47,22 @@ angular.module('mafiachat.controllers', []).controller('MainCtrl', ['$rootScope'
 
     $scope.joinGame = function() {
         console.log("Joining game: " + this.game.id);
-        $location.path("/game");
+        $window.location.href = "/g/"+this.game.id+"/#game";
 
     }
 
     $scope.newGame = function() {
-        $location.path("/createGame");
+        $window.location.href = "/g/";
+    }
+
+    $scope.alivePlayers = function() {
+        var count = 0;
+        for (var i in this.game.players) {
+            if (this.game.players[i].faction != 'ghost') {
+                count++;
+            }
+        }
+        return count;
     }
 }]);
 

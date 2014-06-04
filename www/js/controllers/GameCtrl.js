@@ -9,14 +9,10 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
         var message = {data:{}};
         message.msgType = 'loginMessage';
         message.data.name = $rootScope.name;
+        message.data.password = sessionStorage.pass;
 
         WebSocket.sendMsg(message);
     }
-
-    if (!$scope.games) {
-        $scope.games = [];
-    }
-
 
     $scope.roleDescription = {
         mafia:"Mafia",
@@ -27,29 +23,8 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
         new:"Unknown"
     };
 
-
-    $scope.game = {
-        "id":$scope.games.length,
-        "name":"",
-        "maxPlayers":8,
-        "minPlayers":8,
-        "minVillagers":2,
-        "cops":1,
-        "doctors":2,
-        "mafiosi":3,
-        "password":"",
-        "state":"open",
-        "players":[]
-    };
-
-    $scope.createGame = function() {
-        $scope.game.needsPassword = $scope.game.password != "";
-        $rootScope.games.push($scope.game);
-        $location.path("/game");
-    }
-
     $scope.startGame = function() {
-        if ($scope.thisPlayer.admin) {
+        if ($scope.thisPlayer.admin && $scope.gameInfo.game.players.length >= $rootScope.minPlayers) {
             var message = {data:{}};
             message.msgType = 'actionMessage';
             message.data.action = 'startGame';
@@ -99,5 +74,14 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     $scope.heal = function(player) {
         sendActionMessage("heal", player.name);
     };
+
+    $scope.contextMenuAvailable = function() {
+        // Context menu not available for player itself except if she's a doctor. No context menu for ghosts nor in lobby or debrief.
+        return (this.player != $scope.thisPlayer || $scope.thisPlayer.faction == 'doctor') &&
+            this.player.faction != 'ghost' &&
+            $scope.thisPlayer.faction != 'ghost' &&
+            $scope.gameInfo.game.state != 'lobby' &&
+            $scope.gameInfo.game.state != 'debrief';
+    }
 }]);
 

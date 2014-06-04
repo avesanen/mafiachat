@@ -7,6 +7,7 @@
 html {
     margin: 0 20px;
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,0.9))), url('img/bgtile.png') repeat;
+    background: -moz-linear-gradient(top,  rgba(0,0,0,0),  rgba(0,0,0,0.9)), url('img/bgtile.png') repeat;
     min-height: 100%;
 	background-attachment:fixed;
 }
@@ -58,7 +59,7 @@ ul.playerContextMenu {
 #playersList ul li.player-state-cop {
     background: url("../img/player-cop.png") no-repeat 5px 50%;
 }
-#playersList ul li.player-state-dead {
+#playersList ul li.player-state-ghost {
     background: url("../img/player-dead.png") no-repeat 5px 50%;
 }
 
@@ -288,7 +289,7 @@ h4.list-group-item-heading{
 	color:#dedede;
 }
 
-.btn-success:hover{
+.btn-success:hover, .btn-success:focus{
 	background-color: #c12323;
 	border-color: #a31d1d;
 }
@@ -296,4 +297,18 @@ h4.list-group-item-heading{
 .btn-success:disabled{
 	background-color: #d44f4f;
 	border-color: #d44f4f;
+}
+
+.player-state-online, .player-state-offline {
+    font-size: 7px;
+    float: left;
+    margin-top: 7px;
+    margin-right: 3px;
+}
+
+.player-state-online {
+    color: limegreen;
+}
+.player-state-offline {
+    color: red;
 }

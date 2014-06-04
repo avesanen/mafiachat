@@ -23,8 +23,7 @@ angular.module('mafiachat.services', []).factory('WebSocket', ['$q', '$rootScope
     };
 
     ws.onerror = function(error) {
-        console.log("WebSocket error: " + error);
-        $rootScope.$apply(defer.reject(error));
+        console.log("WebSocket error: ", error);
     }
 
     Service.isConnected = function() {

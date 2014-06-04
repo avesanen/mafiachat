@@ -4,8 +4,8 @@
     <h2>Open Games</h2>
     <div class="gamesList">
         <div class="list-group">
-            <div ng-show="game.state == 'open'" class="list-group-item" ng-repeat="game in games">
-                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.maxPlayers}}</span></h4>
+            <div ng-show="game.state == 'lobby'" class="list-group-item" ng-repeat="game in games">
+                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{alivePlayers()}}/{{game.maxPlayers}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">
                         <dt>Number of cops</dt>
@@ -16,10 +16,10 @@
                         <dd>{{game.doctors}}</dd>
                     </dl>
 
-                    <input ng-show="game.needsPassword" ng-change="gameAuth()" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
+                    <input ng-show="game.password != ''" ng-change="gameAuth()" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
                 </p>
                 <div class="clearfix">
-                    <button ng-disabled="game.needsPassword && invalidPass" ng-click="joinGame()" class="btn btn-success pull-right">Join game</button>
+                    <button ng-disabled="game.password != '' && invalidPass" ng-click="joinGame()" class="btn btn-success pull-right">Join game</button>
                 </div>
                 <div ng-show="errorMsg" class="gameAuthError alert alert-danger">{{errorMsg}}</div>
             </div>
@@ -29,8 +29,8 @@
     <h2>Ongoing Games</h2>
     <div class="gamesList">
         <div class="list-group">
-            <div ng-if="game.state != 'open'" class="list-group-item" ng-repeat="game in games">
-                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{game.players.length}}/{{game.maxPlayers}}</span></h4>
+            <div ng-if="game.state != 'lobby'" class="list-group-item" ng-repeat="game in games">
+                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{alivePlayers()}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">
                         <dt>Number of cops</dt>
@@ -42,7 +42,7 @@
                     </dl>
                 </p>
                 <div class="clearfix">
-                    <button ng-click="joinGame(game.id)" class="btn btn-success pull-right">View game</button>
+                    <button ng-click="joinGame()" class="btn btn-success pull-right">View game</button>
                 </div>
                 <div ng-show="errorMsg" class="">{{errorMsg}}</div>
             </div>
