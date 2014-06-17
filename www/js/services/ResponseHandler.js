@@ -6,6 +6,12 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
 
     Service.handle = function($scope, msg) {
         switch (msg.msgType) {
+            case 'messageBuffer':
+                $scope.messageBuffer = msg.data;
+                break;
+            case 'chatMessage':
+                $scope.messageBuffer.push(msg.data);
+                break;
             case 'gameInfo':
                 if (!$scope.gameInfo) {
                     $scope.gameInfo = {};
@@ -16,8 +22,8 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 if (!$scope.gameInfo.game.players) {
                     $scope.gameInfo.game.players = [];
                 }
-                if (!$scope.gameInfo.game.messageBuffer) {
-                    $scope.gameInfo.game.messageBuffer = [];
+                if (!$scope.messageBuffer) {
+                    $scope.messageBuffer = [];
                 }
 
                 $scope.gameName = msg.data.game.name;

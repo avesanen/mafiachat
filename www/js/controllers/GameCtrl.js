@@ -24,12 +24,13 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     };
 
     $scope.startGame = function() {
-        if ($scope.thisPlayer.admin && $scope.gameInfo.game.players.length >= $rootScope.minPlayers) {
+        // Commented out to fasten testing ;) TODO: uncomment
+        //if ($scope.thisPlayer.admin && $scope.gameInfo.game.players.length >= $rootScope.minPlayers) {
             var message = {data:{}};
             message.msgType = 'actionMessage';
             message.data.action = 'startGame';
             WebSocket.sendMsg(message);
-        }
+        //}
     }
 
     $scope.sendMsg = function() {
@@ -45,8 +46,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
         message.msgType = 'chatMessage';
         message.data.faction = type;
         message.data.message = msg;
-        message.data.player = {};
-        message.data.player.name = $rootScope.name;
+        message.data.player = $rootScope.name;
         WebSocket.sendMsg(message);
         $scope.msg = "";
     }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"time"
 )
 
 /* snippets:
@@ -14,13 +15,14 @@ Shuffle
 	    dest[v] = src[i]
 	}
 */
+
 type game struct {
 	Players       []*player      `json:"players"`
 	State         string         `json:"state"`
 	Id            string         `json:"id"`
 	Name          string         `json:"name"`
 	Password      string         `json:"password"`
-	MessageBuffer []*chatMessage `json:"messageBuffer"`
+	MessageBuffer []*chatMessage `json:"-"`
 }
 
 // Return a new game
@@ -126,24 +128,38 @@ func (g *game) newInfo(msg string) *chatMessage {
 }
 
 func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
-	if g.State == "lobby" {
-		chatMsg.Data.Faction = "lobby"
-		chatMsg.Data.Player = p
+	chatMsg.Data.Player = p.Name
+	chatMsg.Data.Date = time.Now().Format("15:04:05")
+
+	if chatMsg.Data.Faction != p.Faction {
+		chatMsg.Data.Faction = "villager"
 	}
-	g.MessageBuffer = append(g.MessageBuffer, chatMsg)
-	if p.Faction == "toBeExecuted" {
-		p.Faction = "ghost"
-		g.MessageBuffer = append(g.MessageBuffer, g.newInfo(p.Name+" has been executed."))
-		g.zeroVotes()
-		g.State = "gameDay"
-		if g.countFaction("mafia") == 0 {
-			g.MessageBuffer = append(g.MessageBuffer, g.newInfo("Villagers win!"))
-			g.State = "debrief"
-		} else if g.countFaction("villager") <= g.countFaction("mafia") {
-			g.MessageBuffer = append(g.MessageBuffer, g.newInfo("Mafioso win!"))
+
+	for i := 0; i < len(g.Players); i++ {
+		if chatMsg.Data.Faction == g.Players[i].Faction || chatMsg.Data.Faction == "villager" {
+			g.Players[i].addChatMessage(chatMsg)
 		}
 	}
-	g.broadcastGameInfo()
+	/*
+		if g.State == "lobby" {
+			chatMsg.Data.Faction = "lobby"
+			chatMsg.Data.Player = p
+		}
+		g.MessageBuffer = append(g.MessageBuffer, chatMsg)
+		if p.Faction == "toBeExecuted" {
+			p.Faction = "ghost"
+			g.MessageBuffer = append(g.MessageBuffer, g.newInfo(p.Name+" has been executed."))
+			g.zeroVotes()
+			g.State = "gameDay"
+			if g.countFaction("mafia") == 0 {
+				g.MessageBuffer = append(g.MessageBuffer, g.newInfo("Villagers win!"))
+				g.State = "debrief"
+			} else if g.countFaction("villager") <= g.countFaction("mafia") {
+				g.MessageBuffer = append(g.MessageBuffer, g.newInfo("Mafioso win!"))
+			}
+		}
+		g.broadcastGameInfo()
+	*/
 }
 
 func (g *game) getPlayerByName(s string) (*player, error) {
@@ -194,14 +210,20 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 
 	if msg.Data.Action == "startGame" {
 		if p.Admin == true && g.State == "lobby" {
-			g.State = "gameDay"
-			for i := 0; i < len(g.Players); i++ {
-				g.Players[i].Faction = "villager"
-			}
+			g.startGame()
 			g.chatMessage(g.newInfo(p.Name+" has started the game. Good luck."), p)
 		}
 	}
 	g.broadcastGameInfo()
+}
+
+func (g *game) startGame() {
+	// TODO: Shuffle roles
+	for i := 0; i < len(g.Players); i++ {
+		g.Players[i].Faction = "villager"
+	}
+	g.Players[0].Faction = "mafia"
+	g.State = "gameDay"
 }
 
 func (g *game) loginMessage(msg *loginMessage, p *player) error {

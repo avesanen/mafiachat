@@ -6,21 +6,37 @@ import (
 )
 
 type player struct {
-	Id         string      `json:"id"`
-	Name       string      `json:"name"`
-	Password   string      `json:"-"`
-	State      string      `json:"state"`
-	Faction    string      `json:"faction"`
-	Connection *connection `json:"-"`
-	Votes      int         `json:"votes"`
-	VotingFor  *player     `json:"-"`
-	Admin      bool        `json:"admin"`
+	Id            string         `json:"id"`
+	Name          string         `json:"name"`
+	Password      string         `json:"-"`
+	State         string         `json:"state"`
+	Faction       string         `json:"faction"`
+	Connection    *connection    `json:"-"`
+	Votes         int            `json:"votes"`
+	VotingFor     *player        `json:"-"`
+	Admin         bool           `json:"admin"`
+	MessageBuffer []*chatMessage `json:"-"`
 }
 
 func newPlayer() *player {
 	p := &player{}
 	p.Id = uuid()
+	p.MessageBuffer = make([]*chatMessage, 0)
 	return p
+}
+
+func (p *player) addChatMessage(c *chatMessage) {
+	log.Println("Adding chatmessage")
+	p.MessageBuffer = append(p.MessageBuffer, c)
+	c.MsgType = "chatMessage"
+	msg, err := json.Marshal(c)
+	if err != nil {
+		log.Println("Can't marshal chat message to json:", err)
+		return
+	}
+	if p.Connection != nil {
+		p.Connection.Outbound <- msg
+	}
 }
 
 func (p *player) msgParser(g *game) {
