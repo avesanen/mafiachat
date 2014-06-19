@@ -71,13 +71,6 @@ func (g *game) addPlayer(p *player) {
 
 // Remove player from game
 func (g *game) rmPlayer(p *player) {
-	/*
-		for i := 0; i < len(g.Players); i++ {
-			if g.Players[i] == p {
-				g.Players = append(g.Players[:i], g.Players[i+1:]...)
-				break
-			}
-		}*/
 	p.State = "offline"
 	p.Connection = nil
 	g.broadcastGameInfo()
@@ -127,6 +120,18 @@ func (g *game) newInfo(msg string) *chatMessage {
 	return chatMsg
 }
 
+func (g *game) serverMessage(msg string) {
+	chatMsg := &chatMessage{}
+	chatMsg.MsgType = "chatMessage"
+	chatMsg.Data.Message = msg
+	chatMsg.Data.Faction = "server"
+	chatMsg.Data.Player = "Server"
+	chatMsg.Data.Date = time.Now().Format("15:04:05")
+	for i := 0; i < len(g.Players); i++ {
+		g.Players[i].addChatMessage(chatMsg)
+	}
+}
+
 func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
 	chatMsg.Data.Player = p.Name
 	chatMsg.Data.Date = time.Now().Format("15:04:05")
@@ -140,26 +145,6 @@ func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
 			g.Players[i].addChatMessage(chatMsg)
 		}
 	}
-	/*
-		if g.State == "lobby" {
-			chatMsg.Data.Faction = "lobby"
-			chatMsg.Data.Player = p
-		}
-		g.MessageBuffer = append(g.MessageBuffer, chatMsg)
-		if p.Faction == "toBeExecuted" {
-			p.Faction = "ghost"
-			g.MessageBuffer = append(g.MessageBuffer, g.newInfo(p.Name+" has been executed."))
-			g.zeroVotes()
-			g.State = "gameDay"
-			if g.countFaction("mafia") == 0 {
-				g.MessageBuffer = append(g.MessageBuffer, g.newInfo("Villagers win!"))
-				g.State = "debrief"
-			} else if g.countFaction("villager") <= g.countFaction("mafia") {
-				g.MessageBuffer = append(g.MessageBuffer, g.newInfo("Mafioso win!"))
-			}
-		}
-		g.broadcastGameInfo()
-	*/
 }
 
 func (g *game) getPlayerByName(s string) (*player, error) {
@@ -175,9 +160,9 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 	log.Println(msg.Data.Target)
 	log.Println("action message")
 
-	// If the action is vote, it is day and player is not a ghost.
-	if msg.Data.Action == "vote" && g.State == "gameDay" && p.Faction != "ghost" {
-		if g.State == "gameDay" {
+	if g.State == "gameDay" {
+		// If the action is vote, it is day and player is not a ghost.
+		if msg.Data.Action == "vote" && p.Faction != "ghost" {
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
 				//p.Connection.Outbound <- g.newError(err.Error())
@@ -185,9 +170,9 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			}
 			if p.VotingFor != nil {
 				p.VotingFor.Votes--
-				g.chatMessage(g.newInfo(p.Name+" changes vote to "+t.Name+"."), p)
+				g.serverMessage(p.Name + " changes vote to " + t.Name + ".")
 			} else {
-				g.chatMessage(g.newInfo(p.Name+" votes for "+t.Name+"."), p)
+				g.serverMessage(p.Name + " votes for " + t.Name + ".")
 			}
 			p.VotingFor = t
 			p.VotingFor.Votes++
@@ -197,23 +182,54 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 					alivePlayers++
 				}
 			}
-
 			for i := 0; i < len(g.Players); i++ {
 				if g.Players[i].Votes > alivePlayers/2 {
-					g.chatMessage(g.newInfo(g.Players[i].Name+" has majority vote. Any last words?"), p)
-					g.Players[i].Faction = "toBeExecuted"
-					g.State = "gameEvening"
+					g.serverMessage(g.Players[i].Name + " has been executed.")
+					g.Players[i].Faction = "ghost"
+					g.State = "gameNight"
+					g.zeroVotes()
 				}
 			}
 		}
-	}
-
-	if msg.Data.Action == "startGame" {
+	} else if g.State == "gameNight" {
+		if msg.Data.Action == "vote" && p.Faction == "mafia" {
+			t, err := g.getPlayerByName(msg.Data.Target)
+			if err != nil {
+				return
+			}
+			if p.VotingFor != nil {
+				p.VotingFor.Votes--
+				g.serverMessage(p.Name + " changes vote to " + t.Name + ".")
+			} else {
+				g.serverMessage(p.Name + " votes for " + t.Name + ".")
+			}
+			p.VotingFor = t
+			p.VotingFor.Votes++
+			mafiosos := 0
+			log.Println("there are", mafiosos, "mafiosos.")
+			for i := 0; i < len(g.Players); i++ {
+				log.Println(g.Players[i].Name, "is in", g.Players[i].Faction, "faction.")
+				if g.Players[i].Faction == "mafia" {
+					mafiosos++
+				}
+			}
+			for i := 0; i < len(g.Players); i++ {
+				log.Println(g.Players[i].Name, "has", g.Players[i].Votes, "votes.")
+				if g.Players[i].Votes == mafiosos {
+					g.serverMessage(g.Players[i].Name + " has been found dead.")
+					g.Players[i].Faction = "ghost"
+					g.State = "gameDay"
+					g.zeroVotes()
+				}
+			}
+		}
+	} else if msg.Data.Action == "startGame" {
 		if p.Admin == true && g.State == "lobby" {
 			g.startGame()
-			g.chatMessage(g.newInfo(p.Name+" has started the game. Good luck."), p)
+			g.serverMessage(p.Name + " has started the game. Good luck.")
 		}
 	}
+
 	g.broadcastGameInfo()
 }
 
