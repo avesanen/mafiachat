@@ -6,16 +6,18 @@ import (
 )
 
 type player struct {
-	Id            string         `json:"id"`
-	Name          string         `json:"name"`
-	Password      string         `json:"-"`
-	State         string         `json:"state"`
-	Faction       string         `json:"faction"`
-	Connection    *connection    `json:"-"`
-	Votes         int            `json:"votes"`
-	VotingFor     *player        `json:"-"`
-	Admin         bool           `json:"admin"`
-	MessageBuffer []*chatMessage `json:"-"`
+	Id                string         `json:"id"`
+	Name              string         `json:"name"`
+	Password          string         `json:"-"`
+	State             string         `json:"state"`
+	Faction           string         `json:"faction"`
+	Connection        *connection    `json:"-"`
+	Votes             int            `json:"votes"`
+	VotingFor         *player        `json:"-"`
+	Protecting        *player        `json:"-"`
+	Admin             bool           `json:"admin"`
+	MessageBuffer     []*chatMessage `json:"-"`
+	IdentifiedPlayers []*player      `json:"-"`
 }
 
 func newPlayer() *player {

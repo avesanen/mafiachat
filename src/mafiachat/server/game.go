@@ -158,10 +158,15 @@ func (g *game) getPlayerByName(s string) (*player, error) {
 
 func (g *game) actionMessage(msg *actionMessage, p *player) {
 	log.Println(msg.Data.Target)
-	log.Println("action message")
+	log.Println("action message", msg.Data.Action, msg.Data.Target)
 
-	if g.State == "gameDay" {
-		// If the action is vote, it is day and player is not a ghost.
+	switch g.State {
+	case "lobby":
+		if msg.Data.Action == "startGame" && p.Admin == true {
+			g.startGame()
+			g.serverMessage(p.Name + " has started the game. Good luck.")
+		}
+	case "villager":
 		if msg.Data.Action == "vote" && p.Faction != "ghost" {
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
@@ -186,12 +191,33 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 				if g.Players[i].Votes > alivePlayers/2 {
 					g.serverMessage(g.Players[i].Name + " has been executed.")
 					g.Players[i].Faction = "ghost"
-					g.State = "gameNight"
+					g.State = "doctor"
 					g.zeroVotes()
 				}
 			}
 		}
-	} else if g.State == "gameNight" {
+	case "doctor":
+		if msg.Data.Action == "heal" && p.Faction == "doctor" {
+			t, err := g.getPlayerByName(msg.Data.Target)
+			if err != nil {
+				return
+			}
+			g.serverMessage(p.Name + " is now protecting " + t.Name + ".")
+			p.Protecting = t
+
+			allDocsVoted := true
+			for i := 0; i < len(g.Players); i++ {
+				if g.Players[i].Faction == "doctor" && g.Players[i].Protecting == nil {
+					allDocsVoted = false
+				}
+			}
+			if allDocsVoted {
+				g.State = "mafia"
+				g.zeroVotes()
+			}
+		}
+	case "cop":
+	case "mafia":
 		if msg.Data.Action == "vote" && p.Faction == "mafia" {
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
@@ -216,17 +242,27 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			for i := 0; i < len(g.Players); i++ {
 				log.Println(g.Players[i].Name, "has", g.Players[i].Votes, "votes.")
 				if g.Players[i].Votes == mafiosos {
-					g.serverMessage(g.Players[i].Name + " has been found dead.")
-					g.Players[i].Faction = "ghost"
-					g.State = "gameDay"
-					g.zeroVotes()
+					playerProtected := false
+					for j := 0; j < len(g.Players); j++ {
+						log.Println(g.Players[j].Protecting)
+						if g.Players[j].Protecting == g.Players[i] {
+							log.Println(g.Players[j].Name + " is protecting " + g.Players[j].Protecting.Name)
+							log.Println(g.Players[j] == g.Players[i])
+							playerProtected = true
+						}
+					}
+					if !playerProtected {
+						g.serverMessage(g.Players[i].Name + " has been found dead.")
+						g.Players[i].Faction = "ghost"
+						g.State = "villager"
+						g.zeroVotes()
+					} else {
+						g.serverMessage(g.Players[i].Name + " was wounded by mafia, but saved by a doctor!")
+						g.State = "villager"
+						g.zeroVotes()
+					}
 				}
 			}
-		}
-	} else if msg.Data.Action == "startGame" {
-		if p.Admin == true && g.State == "lobby" {
-			g.startGame()
-			g.serverMessage(p.Name + " has started the game. Good luck.")
 		}
 	}
 
@@ -239,7 +275,8 @@ func (g *game) startGame() {
 		g.Players[i].Faction = "villager"
 	}
 	g.Players[0].Faction = "mafia"
-	g.State = "gameDay"
+	g.Players[1].Faction = "doctor"
+	g.State = "villager"
 }
 
 func (g *game) loginMessage(msg *loginMessage, p *player) error {
