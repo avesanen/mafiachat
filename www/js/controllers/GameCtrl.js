@@ -61,18 +61,22 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
 
     $scope.vote = function(player) {
         sendActionMessage("vote", player.name);
+        $scope.togglePlayerList();
     };
 
     $scope.kill = function(player) {
         sendActionMessage("kill", player.name);
+        $scope.togglePlayerList();
     };
 
     $scope.identify = function(player) {
         sendActionMessage("identify", player.name);
+        $scope.togglePlayerList();
     };
 
     $scope.heal = function(player) {
         sendActionMessage("heal", player.name);
+        $scope.togglePlayerList();
     };
 
     $scope.contextMenuAvailable = function() {
@@ -82,6 +86,10 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
             $scope.thisPlayer.faction != 'ghost' &&
             $scope.gameInfo.game.state != 'lobby' &&
             $scope.gameInfo.game.state != 'debrief';
+    }
+
+    $scope.togglePlayerList = function() {
+        $scope.playersListToggle = $scope.playersListToggle == 'expanded' ? '' : 'expanded';
     }
 }]);
 

@@ -26,9 +26,6 @@ img#logo {
 #container {
 }
 
-#playersList ul {
-}
-
 #playersList ul li.player {
     padding-left: 40px;
 }
@@ -45,22 +42,22 @@ ul.playerContextMenu {
 }
 
 #playersList ul li.player-state-new {
-    background: url("../img/player-new.png") no-repeat 5px 50%;
+    background: url("../img/player-new.png") no-repeat 5px 50% white;
 }
 #playersList ul li.player-state-villager {
-    background: url("../img/player-villager.png") no-repeat 5px 50%;
+    background: url("../img/player-villager.png") no-repeat 5px 50% white;
 }
 #playersList ul li.player-state-mafia {
-    background: url("../img/player-mafia.png") no-repeat 5px 50%;
+    background: url("../img/player-mafia.png") no-repeat 5px 50% white;
 }
 #playersList ul li.player-state-doctor {
-    background: url("../img/player-doctor.png") no-repeat 5px 50%;
+    background: url("../img/player-doctor.png") no-repeat 5px 50% white;
 }
 #playersList ul li.player-state-cop {
-    background: url("../img/player-cop.png") no-repeat 5px 50%;
+    background: url("../img/player-cop.png") no-repeat 5px 50% white;
 }
 #playersList ul li.player-state-ghost {
-    background: url("../img/player-dead.png") no-repeat 5px 50%;
+    background: url("../img/player-dead.png") no-repeat 5px 50% white;
 }
 
 #chatForm {
@@ -108,6 +105,10 @@ ul.playerContextMenu {
     div.startGameBtn {
         padding: 23px 0 0 11px;
     }
+
+    #smallDevicesTitleBar {
+        display: none;
+    }
 }
 
 @media only screen and (max-width: 1199px) {
@@ -149,6 +150,10 @@ ul.playerContextMenu {
     div.startGameBtn {
         padding: 23px 0 0 11px;
     }
+
+    #smallDevicesTitleBar {
+        display: none;
+    }
 }
 
 @media only screen and (max-width: 524px) {
@@ -170,6 +175,18 @@ ul.playerContextMenu {
     }
     div.startGameBtn button {
         width: 100%;
+    }
+
+    #playersList ul.list-group {
+         height: 40px;
+         overflow: hidden;
+     }
+    #playersList ul.expanded {
+        height: 100%;
+    }
+
+    #smallDevicesTitleBar {
+        display: block;
     }
 }
 
