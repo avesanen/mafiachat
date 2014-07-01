@@ -8,6 +8,7 @@ var app = angular.module(
         'ui.bootstrap',
         'mafiachat.services',
         'mafiachat.filters',
+        'mafiachat.directives',
         'mafiachat.controllers'
     ]
 );

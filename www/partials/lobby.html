@@ -42,7 +42,7 @@
                 <div ng-class="message.faction">
                     {{message.date}} -
                     <i>({{message.faction}})</i>
-                    <b>{{message.player}}</b>: {{message.message}}
+                    <b>{{message.player}}</b>: <message text="{{message.message}}" />
                 </div>
             </li>
         </ul>
