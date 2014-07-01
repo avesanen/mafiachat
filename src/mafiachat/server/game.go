@@ -120,9 +120,7 @@ func (g *game) serverMessage(msg string) {
 	chatMsg.Data.Faction = "server"
 	chatMsg.Data.Player = "Server"
 	chatMsg.Data.Date = time.Now().Format("15:04:05")
-	for i := 0; i < len(g.Players); i++ {
-		g.Players[i].addChatMessage(chatMsg)
-	}
+	g.MessageBuffer = append(g.MessageBuffer, chatMsg)
 }
 
 func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
@@ -132,12 +130,8 @@ func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
 	if chatMsg.Data.Faction != p.Faction {
 		chatMsg.Data.Faction = "villager"
 	}
-
-	for i := 0; i < len(g.Players); i++ {
-		if chatMsg.Data.Faction == g.Players[i].Faction || chatMsg.Data.Faction == "villager" {
-			g.Players[i].addChatMessage(chatMsg)
-		}
-	}
+	g.MessageBuffer = append(g.MessageBuffer, chatMsg)
+	g.broadcastGameInfo()
 }
 
 func (g *game) getPlayerByName(s string) (*player, error) {
@@ -208,6 +202,9 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			p.Done = true
 		}
 		if msg.Data.Action == "identify" && p.Faction == "cop" {
+			if p.Done {
+				return
+			}
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
 				return

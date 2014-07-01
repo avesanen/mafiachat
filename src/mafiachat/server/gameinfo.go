@@ -1,14 +1,14 @@
 package server
 
 type gameInfo struct {
-	Name     string         `json:"name"`
-	State    string         `json:"state"`
-	Messages []*chatMessage `json:"messages"`
-	Players  []*playerInfo  `json:"players"`
-	MyPlayer *playerInfo    `json:"myPlayer"`
+	Name     string        `json:"name"`
+	State    string        `json:"state"`
+	Messages []*chatInfo   `json:"messages"`
+	Players  []*playerInfo `json:"players"`
+	MyPlayer *playerInfo   `json:"myPlayer"`
 }
 
-func (g *gameInfo) addChatMessage(c *chatMessage) {
+func (g *gameInfo) addChatMessage(c *chatInfo) {
 	g.Messages = append(g.Messages, c)
 }
 
@@ -22,6 +22,13 @@ type playerInfo struct {
 	Faction string `json:"faction"`
 	Votes   int    `json:"votes"`
 	Online  bool   `json:"online"`
+}
+
+type chatInfo struct {
+	Date    string `json:"date"`
+	Faction string `json:"faction"`
+	Message string `json:"message"`
+	Player  string `json:"player"`
 }
 
 func getGameInfo(g *game, p *player) *gameInfo {
@@ -67,6 +74,26 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		pi.Online = g.Players[i].Connection != nil
 		gi.addPlayer(pi)
 	}
-	gi.Messages = p.MessageBuffer
+
+	for i := 0; i < len(g.MessageBuffer); i++ {
+		visible := false
+		if g.MessageBuffer[i].Data.Faction == p.Faction {
+			visible = true
+		} else if g.MessageBuffer[i].Data.Faction == "server" {
+			visible = true
+		} else if g.MessageBuffer[i].Data.Faction == "villager" {
+			visible = true
+		} else if p.Faction == "ghost" {
+			visible = true
+		}
+		if visible {
+			ci := &chatInfo{}
+			ci.Date = g.MessageBuffer[i].Data.Date
+			ci.Player = g.MessageBuffer[i].Data.Player
+			ci.Message = g.MessageBuffer[i].Data.Message
+			ci.Faction = g.MessageBuffer[i].Data.Faction
+			gi.addChatMessage(ci)
+		}
+	}
 	return gi
 }
