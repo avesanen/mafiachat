@@ -19,6 +19,11 @@ type player struct {
 	MessageBuffer     []*chatMessage `json:"-"`
 	IdentifiedPlayers []*player      `json:"-"`
 	Done              bool           `json:"-"`
+	PlayerIntel       []struct {
+		Name    string `json:"name"`
+		Faction string `json:"faction"`
+		Votes   int    `json:"votes"`
+	} `json:"playerIntel"`
 }
 
 func newPlayer() *player {

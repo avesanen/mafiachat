@@ -17,13 +17,6 @@ type actionMessage struct {
 	} `json:"data"`
 }
 
-type gameInfo struct {
-	MsgType string `json:"msgType"`
-	Data    struct {
-		Game *game `json:"game"`
-	} `json:"data"`
-}
-
 type serverMessage struct {
 	MsgType string `json:"msgType"`
 	Data    struct {

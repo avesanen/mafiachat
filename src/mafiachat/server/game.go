@@ -70,16 +70,17 @@ func (g *game) rmPlayer(p *player) {
 
 // Broadcast a message to players
 func (g *game) broadcastGameInfo() {
-	log.Println("broadcastGameInfo")
-	gameInfo := &gameInfo{}
-	gameInfo.MsgType = "gameInfo"
-	gameInfo.Data.Game = g
-	msg, err := json.Marshal(gameInfo)
-	if err != nil {
-		log.Println("Can't marshal gameinfo message to json:", err)
-		return
+	for i := 0; i < len(g.Players); i++ {
+		gi := getGameInfo(g, g.Players[i])
+		msg, err := json.Marshal(gi)
+		if err != nil {
+			log.Println("Can't marshal gameinfo message to json:", err)
+			return
+		}
+		if g.Players[i].Connection != nil {
+			g.Players[i].Connection.Outbound <- msg
+		}
 	}
-	g.broadcast(msg)
 }
 
 func (g *game) loginPlayer(p *player) {
