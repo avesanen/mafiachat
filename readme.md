@@ -8,54 +8,45 @@
         {
           "msgType": "chatMessage",
           "data": {
-            "date": "22:32:23",
+            "date": "22:45:57",
             "faction": "villager",
             "message": "Hello world!",
-            "player": "u"
-          }
-        },
-        {
-          "msgType": "chatMessage",
-          "data": {
-            "date": "22:32:30",
-            "faction": "villager",
-            "message": "Hello back!",
-            "player": "q"
+            "player": "Matt"
           }
         }
       ],
       "players": [
         {
-          "name": "y",
+          "name": "John",
           "admin": true,
           "faction": "villager",
           "votes": 0,
           "online": true
         },
         {
-          "name": "q",
+          "name": "Jane",
           "admin": false,
-          "faction": "villager",
+          "faction": "unknown",
           "votes": 0,
           "online": true
         },
         {
-          "name": "u",
+          "name": "Eric",
           "admin": false,
-          "faction": "villager",
+          "faction": "unknown",
           "votes": 0,
-          "online": false
+          "online": true
         },
         {
-          "name": "t",
+          "name": "Matt",
           "admin": false,
-          "faction": "villager",
+          "faction": "unknown",
           "votes": 0,
           "online": false
         }
       ],
       "myPlayer": {
-        "name": "y",
+        "name": "John",
         "admin": true,
         "faction": "villager",
         "votes": 0,
