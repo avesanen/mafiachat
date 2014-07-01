@@ -81,11 +81,11 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
 
     $scope.contextMenuAvailable = function() {
         // Context menu not available for player itself except if she's a doctor. No context menu for ghosts nor in lobby or debrief.
-        return (this.player != $scope.thisPlayer || $scope.thisPlayer.faction == 'doctor') &&
+        return (this.player != $scope.game.myPlayer || $scope.game.myPlayer.faction == 'doctor') &&
             this.player.faction != 'ghost' &&
-            $scope.thisPlayer.faction != 'ghost' &&
-            $scope.gameInfo.game.state != 'lobby' &&
-            $scope.gameInfo.game.state != 'debrief';
+            $scope.game.myPlayer.faction != 'ghost' &&
+            $scope.game.state != 'lobby' &&
+            $scope.game.state != 'debrief';
     }
 
     $scope.togglePlayerList = function() {

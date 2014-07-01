@@ -5,39 +5,9 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
     var Service = {};
 
     Service.handle = function($scope, msg) {
-        switch (msg.msgType) {
-            case 'messageBuffer':
-                $scope.messageBuffer = msg.data;
-                break;
-            case 'chatMessage':
-                $scope.messageBuffer.push(msg.data);
-                break;
-            case 'gameInfo':
-                if (!$scope.gameInfo) {
-                    $scope.gameInfo = {};
-                }
-                if (!$scope.gameInfo.game) {
-                    $scope.gameInfo.game = {};
-                }
-                if (!$scope.gameInfo.game.players) {
-                    $scope.gameInfo.game.players = [];
-                }
-                if (!$scope.messageBuffer) {
-                    $scope.messageBuffer = [];
-                }
+                $scope.game = msg;
 
-                $scope.gameName = msg.data.game.name;
-
-                //var oldPlayers = $scope.gameInfo.game.players;
-                $scope.gameInfo = msg.data;
-                calculateVoteLevels($scope.gameInfo);
-                for (var i = 0; i < $scope.gameInfo.game.players.length; i++) {
-                    var p = $scope.gameInfo.game.players[i];
-                    if (p.name == $rootScope.name) {
-                        $scope.thisPlayer = p;
-                        break;
-                    }
-                }
+                calculateVoteLevels($scope.game);
                 //var newPlayers = $scope.gameInfo.game.players;
 
                 // check if someone joined or leaved the game and who that was (oldPlayers != gameInfo.game.players)
@@ -49,9 +19,6 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 }
                 */
 
-                break;
-        }
-
         if ($scope) {
             $scope.$apply();
         }
@@ -62,10 +29,10 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
         }
     };
 
-    function calculateVoteLevels(gameInfo) {
+    function calculateVoteLevels(game) {
         var highestVotedPlayer;
-        for (var i = 0; i < gameInfo.game.players.length; i++) {
-            var p = gameInfo.game.players[i];
+        for (var i = 0; i < game.players.length; i++) {
+            var p = game.players[i];
             if (p.votes > 0) {
                 p.voteLevel = 'warning';
                 if (!highestVotedPlayer || p.votes > highestVotedPlayer.votes) {
@@ -77,8 +44,8 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
         if (highestVotedPlayer) {
             highestVotedPlayer.voteLevel = 'danger';
             // Highlight all players with same vote count
-            for (var i = 0; i < gameInfo.game.players.length; i++) {
-                var p = gameInfo.game.players[i];
+            for (var i = 0; i < game.players.length; i++) {
+                var p = game.players[i];
                 if (p.votes == highestVotedPlayer.votes) {
                     p.voteLevel = 'danger';
                 }
