@@ -18,12 +18,14 @@ type player struct {
 	Admin             bool           `json:"admin"`
 	MessageBuffer     []*chatMessage `json:"-"`
 	IdentifiedPlayers []*player      `json:"-"`
+	Done              bool           `json:"-"`
 }
 
 func newPlayer() *player {
 	p := &player{}
 	p.Id = uuid()
 	p.MessageBuffer = make([]*chatMessage, 0)
+	p.Done = false
 	return p
 }
 

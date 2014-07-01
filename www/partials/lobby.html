@@ -1,5 +1,5 @@
 <div class="clearfix">
-    <h1 class="pull-left">{{gameInfo.game.name}}</h1>
+    <h1 class="pull-left">{{gameInfo.game.name}} - {{gameInfo.game.state}}</h1>
 
     <div ng-if="thisPlayer.admin && gameInfo.game.state == 'lobby'" class="pull-left startGameBtn">
         <button ng-click="startGame()" tooltip-trigger="mouseenter" tooltip-placement="right" tooltip="{{gameInfo.game.players.length < minPlayers ? 'Not enough players' : ''}}" class="btn btn-success">Start game</button>
@@ -25,10 +25,10 @@
                 <span class="glyphicon glyphicon-stop" ng-class="'player-state-'+player.state"></span>
             </div>
             <ul ng-if="contextMenuAvailable()" class="playerContextMenu dropdown-menu" role="menu">
-                <li ng-if="thisPlayer != player && gameInfo.game.state == 'villager'"><a href ng-click="vote(player)">Vote</a></li>
-                <li ng-if="thisPlayer.faction == 'mafia' && gameInfo.game.state == 'mafia'"><a href ng-click="vote(player)">Kill</a></li>
-                <li ng-if="thisPlayer.faction == 'cop' && gameInfo.game.state == 'cop'"><a href ng-click="identify(player)">Identify</a></li>
-                <li ng-if="thisPlayer.faction == 'doctor' && gameInfo.game.state == 'doctor'"><a href ng-click="heal(player)">Heal</a></li>
+                <li ng-if="thisPlayer != player && gameInfo.game.state == 'day'"><a href ng-click="vote(player)">Vote</a></li>
+                <li ng-if="thisPlayer.faction == 'mafia' && gameInfo.game.state == 'night'"><a href ng-click="vote(player)">Kill</a></li>
+                <li ng-if="thisPlayer.faction == 'cop' && gameInfo.game.state == 'night'"><a href ng-click="identify(player)">Identify</a></li>
+                <li ng-if="thisPlayer.faction == 'doctor' && gameInfo.game.state == 'night'"><a href ng-click="heal(player)">Heal</a></li>
             </ul>
         </li>
 

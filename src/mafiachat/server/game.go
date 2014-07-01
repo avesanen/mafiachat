@@ -37,24 +37,16 @@ func newGame() *game {
 	return g
 }
 
-func (g *game) startDay(p *player) {
-}
-
 func (g *game) zeroVotes() {
 	for i := 0; i < len(g.Players); i++ {
 		g.Players[i].Votes = 0
 		g.Players[i].VotingFor = nil
-	}
-}
-
-func (g *game) countFaction(f string) int {
-	c := 0
-	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Faction == f {
-			c++ // lol
+		if g.Players[i].Faction == "ghost" {
+			g.Players[i].Done = true
+		} else {
+			g.Players[i].Done = false
 		}
 	}
-	return c
 }
 
 // Add player to game
@@ -157,20 +149,17 @@ func (g *game) getPlayerByName(s string) (*player, error) {
 }
 
 func (g *game) actionMessage(msg *actionMessage, p *player) {
-	log.Println(msg.Data.Target)
-	log.Println("action message", msg.Data.Action, msg.Data.Target)
-
 	switch g.State {
+
 	case "lobby":
 		if msg.Data.Action == "startGame" && p.Admin == true {
 			g.startGame()
-			g.serverMessage(p.Name + " has started the game. Good luck.")
 		}
-	case "villager":
+
+	case "day":
 		if msg.Data.Action == "vote" && p.Faction != "ghost" {
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
-				//p.Connection.Outbound <- g.newError(err.Error())
 				return
 			}
 			if p.VotingFor != nil {
@@ -181,43 +170,18 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			}
 			p.VotingFor = t
 			p.VotingFor.Votes++
-			alivePlayers := 0
-			for i := 0; i < len(g.Players); i++ {
-				if g.Players[i].Faction != "ghost" {
-					alivePlayers++
-				}
-			}
-			for i := 0; i < len(g.Players); i++ {
-				if g.Players[i].Votes > alivePlayers/2 {
-					g.serverMessage(g.Players[i].Name + " has been executed.")
-					g.Players[i].Faction = "ghost"
-					g.State = "doctor"
-					g.zeroVotes()
-				}
+			p.Done = true
+		}
+		if g.dayDone() {
+			if g.checkVictory() {
+				g.endGame()
+			} else {
+				g.startNight()
 			}
 		}
-	case "doctor":
-		if msg.Data.Action == "heal" && p.Faction == "doctor" {
-			t, err := g.getPlayerByName(msg.Data.Target)
-			if err != nil {
-				return
-			}
-			g.serverMessage(p.Name + " is now protecting " + t.Name + ".")
-			p.Protecting = t
+		break
 
-			allDocsVoted := true
-			for i := 0; i < len(g.Players); i++ {
-				if g.Players[i].Faction == "doctor" && g.Players[i].Protecting == nil {
-					allDocsVoted = false
-				}
-			}
-			if allDocsVoted {
-				g.State = "mafia"
-				g.zeroVotes()
-			}
-		}
-	case "cop":
-	case "mafia":
+	case "night":
 		if msg.Data.Action == "vote" && p.Faction == "mafia" {
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
@@ -231,41 +195,35 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			}
 			p.VotingFor = t
 			p.VotingFor.Votes++
-			mafiosos := 0
-			log.Println("there are", mafiosos, "mafiosos.")
-			for i := 0; i < len(g.Players); i++ {
-				log.Println(g.Players[i].Name, "is in", g.Players[i].Faction, "faction.")
-				if g.Players[i].Faction == "mafia" {
-					mafiosos++
-				}
+			p.Done = true
+		}
+		if msg.Data.Action == "heal" && p.Faction == "doctor" {
+			t, err := g.getPlayerByName(msg.Data.Target)
+			if err != nil {
+				return
 			}
-			for i := 0; i < len(g.Players); i++ {
-				log.Println(g.Players[i].Name, "has", g.Players[i].Votes, "votes.")
-				if g.Players[i].Votes == mafiosos {
-					playerProtected := false
-					for j := 0; j < len(g.Players); j++ {
-						log.Println(g.Players[j].Protecting)
-						if g.Players[j].Protecting == g.Players[i] {
-							log.Println(g.Players[j].Name + " is protecting " + g.Players[j].Protecting.Name)
-							log.Println(g.Players[j] == g.Players[i])
-							playerProtected = true
-						}
-					}
-					if !playerProtected {
-						g.serverMessage(g.Players[i].Name + " has been found dead.")
-						g.Players[i].Faction = "ghost"
-						g.State = "villager"
-						g.zeroVotes()
-					} else {
-						g.serverMessage(g.Players[i].Name + " was wounded by mafia, but saved by a doctor!")
-						g.State = "villager"
-						g.zeroVotes()
-					}
-				}
+			g.serverMessage(p.Name + " is now protecting " + t.Name + ".")
+			p.Protecting = t
+			p.Done = true
+		}
+		if msg.Data.Action == "identify" && p.Faction == "cop" {
+			t, err := g.getPlayerByName(msg.Data.Target)
+			if err != nil {
+				return
+			}
+			g.serverMessage(p.Name + " identified " + t.Name + ".")
+			p.IdentifiedPlayers = append(p.IdentifiedPlayers, t)
+			p.Done = true
+		}
+		if g.nightDone() {
+			if g.checkVictory() {
+				g.endGame()
+			} else {
+				g.startDay()
 			}
 		}
+		break
 	}
-
 	g.broadcastGameInfo()
 }
 
@@ -276,7 +234,123 @@ func (g *game) startGame() {
 	}
 	g.Players[0].Faction = "mafia"
 	g.Players[1].Faction = "doctor"
-	g.State = "villager"
+	g.Players[2].Faction = "cop"
+	g.startNight()
+}
+
+func (g *game) endGame() {
+	for i := 0; i < len(g.Players); i++ {
+		g.Players[i].Faction = "villager"
+	}
+	g.State = "lobby"
+	g.zeroVotes()
+	g.serverMessage("Game has been reset back to lobby, admin can restart the game")
+}
+
+func (g *game) checkVictory() bool {
+	if g.countFaction("mafia") == 0 {
+		g.serverMessage("Last mafioso has died. Good guys win!")
+		return true
+	}
+	// count alivePlayers
+	alivePlayers := 0
+	for i := 0; i < len(g.Players); i++ {
+		if g.Players[i].Faction != "ghost" && g.Players[i].Faction != "mafia" {
+			alivePlayers++
+		}
+	}
+	if g.countFaction("mafia") >= alivePlayers {
+		g.serverMessage("Too few good guys to finish off mafiosos. Bad guys win!")
+		return true
+	}
+	g.serverMessage("No victor yet, game continues!")
+	return false
+}
+
+func (g *game) startDay() {
+	g.State = "day"
+	g.zeroVotes()
+}
+
+// dayDone will check if someone has majority vote, execute that player
+// and return true so the night can begin.
+func (g *game) dayDone() bool {
+	// if everyone is not done, return false
+	for i := 0; i < len(g.Players); i++ {
+		if !g.Players[i].Done {
+			return false
+		}
+	}
+	// count alivePlayers
+	alivePlayers := 0
+	for i := 0; i < len(g.Players); i++ {
+		if g.Players[i].Faction != "ghost" {
+			alivePlayers++
+		}
+	}
+	// See if anyone has over "alivePlayers/2" votes
+	for i := 0; i < len(g.Players); i++ {
+		if g.Players[i].Votes > alivePlayers/2 {
+			g.serverMessage(g.Players[i].Name + " has been executed.")
+			g.Players[i].Faction = "ghost"
+			g.State = "doctor"
+			return true
+		}
+	}
+	// Voting inconclusive, return false.
+	return false
+}
+
+func (g *game) startNight() {
+	g.State = "night"
+	g.zeroVotes()
+	for i := 0; i < len(g.Players); i++ {
+		if g.Players[i].Faction == "villager" || g.Players[i].Faction == "ghost" {
+			g.Players[i].Done = true
+		}
+	}
+}
+
+func (g *game) nightDone() bool {
+	for i := 0; i < len(g.Players); i++ {
+		if !g.Players[i].Done {
+			return false
+		}
+	}
+	mafiosos := g.countFaction("mafia")
+	for i := 0; i < len(g.Players); i++ {
+		log.Println(g.Players[i].Name, "has", g.Players[i].Votes, "votes.")
+		if g.Players[i].Votes == mafiosos {
+			playerProtected := false
+			for j := 0; j < len(g.Players); j++ {
+				log.Println(g.Players[j].Protecting)
+				if g.Players[j].Protecting == g.Players[i] {
+					log.Println(g.Players[j].Name + " is protecting " + g.Players[j].Protecting.Name)
+					log.Println(g.Players[j] == g.Players[i])
+					playerProtected = true
+				}
+			}
+			if !playerProtected {
+				g.serverMessage(g.Players[i].Name + " has been found dead.")
+				g.Players[i].Faction = "ghost"
+				g.State = "villager"
+			} else {
+				g.serverMessage(g.Players[i].Name + " was wounded by mafia, but saved by a doctor.")
+				g.State = "villager"
+			}
+		}
+	}
+	return true
+}
+
+func (g *game) countFaction(f string) int {
+	c := 0
+	for i := 0; i < len(g.Players); i++ {
+		if g.Players[i].Faction == f {
+			c++
+		}
+	}
+	return c
 }
 
 func (g *game) loginMessage(msg *loginMessage, p *player) error {
