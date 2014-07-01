@@ -39,7 +39,7 @@
     <div id="log" class="form-control">
         <ul class="list-unstyled">
             <li ng-repeat="message in messageBuffer">
-                <div ng-class="message.data.faction">
+                <div ng-class="message.faction">
                     {{message.date}} -
                     <i>({{message.faction}})</i>
                     <b>{{message.player}}</b>: {{message.message}}

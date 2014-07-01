@@ -5,8 +5,18 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
     var Service = {};
 
     Service.handle = function($scope, msg) {
-                $scope.game = msg;
+        if (!$scope.messageBuffer) {
+            $scope.messageBuffer = [];
+        }
 
+        switch (msg.msgType) {
+            case 'chatMessage':
+                $scope.messageBuffer.push(msg.data);
+                break;
+            default:
+                $scope.game = msg;
+                $scope.messageBuffer = msg.messages;
+        }
                 calculateVoteLevels($scope.game);
                 //var newPlayers = $scope.gameInfo.game.players;
 
