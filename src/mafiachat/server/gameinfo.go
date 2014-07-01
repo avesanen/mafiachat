@@ -34,7 +34,10 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		pi := &playerInfo{}
 		pi.Name = g.Players[i].Name
 		identified := false
-		if g.Players[i].Faction == p.Faction {
+		if g.Players[i].Faction == p.Faction && p.Faction != "villager" {
+			identified = true
+		}
+		if g.Players[i].Name == p.Name {
 			identified = true
 		}
 		for j := 0; j < len(p.IdentifiedPlayers); j++ {
