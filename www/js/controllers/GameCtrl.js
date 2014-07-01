@@ -86,7 +86,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
         }
 
         // Ghosts can't do anything
-        if ($scope.game.myPlayer.faction == 'ghost') {
+        if ($scope.game.myPlayer.faction == 'ghost' || this.player.faction == 'ghost') {
             return false;
         }
 
@@ -96,7 +96,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
         }
 
         // If myPlayer is cop and player is already identified
-        if ($scope.game.myPlayer.faction == 'cop' && this.player.faction != 'unknown') {
+        if ($scope.game.state == 'night' && $scope.game.myPlayer.faction == 'cop' && this.player.faction != 'unknown') {
             return false;
         }
 
