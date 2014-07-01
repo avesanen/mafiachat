@@ -127,7 +127,9 @@ func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
 	chatMsg.Data.Player = p.Name
 	chatMsg.Data.Date = time.Now().Format("15:04:05")
 
-	if chatMsg.Data.Faction != p.Faction {
+	if p.Faction == "ghost" {
+		chatMsg.Data.Faction = "ghost"
+	} else if chatMsg.Data.Faction != p.Faction {
 		chatMsg.Data.Faction = "villager"
 	}
 	g.MessageBuffer = append(g.MessageBuffer, chatMsg)
