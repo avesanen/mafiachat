@@ -333,6 +333,7 @@ func (g *game) dayDone() bool {
 	for i := 0; i < len(g.Players); i++ {
 		if g.Players[i].Votes > votesCount {
 			mostVotes = []*player{g.Players[i]}
+			votesCount = g.Players[i].Votes
 		} else if g.Players[i].Votes == votesCount {
 			mostVotes = append(mostVotes, g.Players[i])
 		}
