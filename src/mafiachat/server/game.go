@@ -365,7 +365,7 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 					g.broadcastGameInfo()
 					return nil
 				} else {
-					return errors.New("Already logged in, kick not supported yet.")
+					return errors.New("Already logged in and online, kick not supported yet.")
 				}
 				return nil
 			} else {
@@ -379,16 +379,15 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
 		p.Faction = "villager"
-	} else if g.State == "gameDay" {
+	} else if g.State == "day" {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
 		p.Faction = "ghost"
-	} else if g.State == "debrief" {
+	} else if g.State == "night" {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
 		p.Faction = "ghost"
 	}
 	g.addPlayer(p)
-	g.broadcastGameInfo()
 	return nil
 }
