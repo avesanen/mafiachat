@@ -23,6 +23,10 @@ img#logo {
     width: 220px;
 }
 
+a.imgThumb {
+    height: 100px;
+}
+
 #container {
 }
 
@@ -66,8 +70,9 @@ ul.playerContextMenu {
     float: left;
 }
 
-#log div,#log i, #log b {
+#log p,#log i, #log b {
     vertical-align: top;
+    display: inline;
 }
 
 @media only screen and (min-width: 1200px) {

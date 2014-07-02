@@ -40,7 +40,7 @@
         <ul class="list-unstyled">
             <li ng-repeat="message in messageBuffer">
                 <div ng-class="message.faction">
-                    {{message.date}} -
+                    <p>{{message.date}} -</p>
                     <i>({{message.faction}})</i>
                     <b>{{message.player}}</b>: <message text="{{message.message}}" />
                 </div>
