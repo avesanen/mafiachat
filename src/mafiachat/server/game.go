@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"math/rand"
 	"time"
 )
 
@@ -228,13 +229,38 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 }
 
 func (g *game) startGame() {
-	// TODO: Shuffle roles
+	if len(g.Players) < 5 {
+		g.serverMessage("Can't start game with less than 5 players.")
+		return
+	}
 	for i := 0; i < len(g.Players); i++ {
 		g.Players[i].Faction = "villager"
 	}
-	g.Players[0].Faction = "mafia"
-	g.Players[1].Faction = "doctor"
-	g.Players[2].Faction = "cop"
+	if len(g.Players) < 6 {
+		g.Players[0].Faction = "mafia"
+		g.Players[1].Faction = "cop"
+		g.Players[2].Faction = "doctor"
+	} else if len(g.Players) < 10 {
+		g.Players[0].Faction = "mafia"
+		g.Players[1].Faction = "mafia"
+		g.Players[2].Faction = "cop"
+		g.Players[3].Faction = "doctor"
+		g.Players[4].Faction = "doctor"
+	} else if len(g.Players) < 15 {
+		g.Players[0].Faction = "mafia"
+		g.Players[1].Faction = "mafia"
+		g.Players[2].Faction = "mafia"
+		g.Players[3].Faction = "cop"
+		g.Players[4].Faction = "cop"
+		g.Players[5].Faction = "doctor"
+		g.Players[6].Faction = "doctor"
+	}
+
+	// shuffle all player factions
+	for i := range g.Players {
+		j := rand.Intn(len(g.Players))
+		g.Players[i].Faction, g.Players[j].Faction = g.Players[j].Faction, g.Players[i].Faction
+	}
 	g.startNight()
 }
 
@@ -383,10 +409,12 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
 		p.Faction = "ghost"
+		p.Done = true
 	} else if g.State == "night" {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
 		p.Faction = "ghost"
+		p.Done = true
 	}
 	g.addPlayer(p)
 	return nil
