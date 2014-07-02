@@ -24,12 +24,18 @@ type game struct {
 	Name          string         `json:"name"`
 	Password      string         `json:"password"`
 	MessageBuffer []*chatMessage `json:"-"`
+	StateTime     time.Time      `json:"-"`
 }
+
+const (
+	StateTimeout = 15 * time.Minute // 10 minute timeout
+)
 
 // Return a new game
 func newGame() *game {
 	g := &game{}
 	g.State = "lobby"
+	g.StateTime = time.Now()
 	g.Name = "MafiosoGame"
 	g.Players = make([]*player, 0)
 	if g.Id != "" {
@@ -258,6 +264,7 @@ func (g *game) startGame() {
 
 	// shuffle all player factions
 	for i := range g.Players {
+		g.Players[i].IdentifiedPlayers = nil
 		j := rand.Intn(len(g.Players))
 		g.Players[i].Faction, g.Players[j].Faction = g.Players[j].Faction, g.Players[i].Faction
 	}
@@ -295,18 +302,23 @@ func (g *game) checkVictory() bool {
 
 func (g *game) startDay() {
 	g.State = "day"
+	g.StateTime = time.Now()
 	g.zeroVotes()
 }
 
 // dayDone will check if someone has majority vote, execute that player
 // and return true so the night can begin.
 func (g *game) dayDone() bool {
-	// if everyone is not done, return false
+	everyoneReady := true
 	for i := 0; i < len(g.Players); i++ {
 		if !g.Players[i].Done {
-			return false
+			everyoneReady = false
 		}
 	}
+	if !everyoneReady && time.Since(g.StateTime) < StateTimeout {
+		return false
+	}
+
 	// count alivePlayers
 	alivePlayers := 0
 	for i := 0; i < len(g.Players); i++ {
@@ -314,21 +326,28 @@ func (g *game) dayDone() bool {
 			alivePlayers++
 		}
 	}
-	// See if anyone has over "alivePlayers/2" votes
+
+	mostVotes := make([]*player, 0)
+	votesCount := 0
+
 	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Votes > alivePlayers/2 {
-			g.serverMessage(g.Players[i].Name + " has been executed.")
-			g.Players[i].Faction = "ghost"
-			g.State = "doctor"
-			return true
+		if g.Players[i].Votes > votesCount {
+			mostVotes = []*player{g.Players[i]}
+		} else if g.Players[i].Votes == votesCount {
+			mostVotes = append(mostVotes, g.Players[i])
 		}
 	}
-	// Voting inconclusive, return false.
-	return false
+
+	toBeKilled := mostVotes[rand.Intn(len(mostVotes))]
+	toBeKilled.Faction = "ghost"
+	g.serverMessage(toBeKilled.Name + " was lynched by an angry mob!")
+
+	return true
 }
 
 func (g *game) startNight() {
 	g.State = "night"
+	g.StateTime = time.Now()
 	g.zeroVotes()
 	for i := 0; i < len(g.Players); i++ {
 		if g.Players[i].Faction == "villager" || g.Players[i].Faction == "ghost" {
@@ -338,12 +357,17 @@ func (g *game) startNight() {
 }
 
 func (g *game) nightDone() bool {
+	everyoneReady := true
 	for i := 0; i < len(g.Players); i++ {
 		if !g.Players[i].Done {
-			return false
+			everyoneReady = false
 		}
 	}
+	if !everyoneReady && time.Since(g.StateTime) < StateTimeout {
+		return false
+	}
 	mafiosos := g.countFaction("mafia")
+
 	for i := 0; i < len(g.Players); i++ {
 		log.Println(g.Players[i].Name, "has", g.Players[i].Votes, "votes.")
 		if g.Players[i].Votes == mafiosos {
@@ -359,13 +383,14 @@ func (g *game) nightDone() bool {
 			if !playerProtected {
 				g.serverMessage(g.Players[i].Name + " has been found dead.")
 				g.Players[i].Faction = "ghost"
-				g.State = "villager"
+				return true
 			} else {
 				g.serverMessage(g.Players[i].Name + " was wounded by mafia, but saved by a doctor.")
-				g.State = "villager"
+				return true
 			}
 		}
 	}
+	g.serverMessage("The dawn breaks without victims.")
 	return true
 }
 
