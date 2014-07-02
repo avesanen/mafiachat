@@ -417,11 +417,13 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 					g.broadcastGameInfo()
 					return nil
 				} else {
+					p.Connection.Outbound <- []byte(`{"msgType":"loginFailed", "reason":"alreadyLoggedIn"}`);
 					return errors.New("Already logged in and online, kick not supported yet.")
 				}
 				return nil
 			} else {
 				// Name already exists, but password doesn't match.
+				p.Connection.Outbound <- []byte(`{"msgType":"loginFailed", "reason":"wrongPassword"}`);
 				return errors.New("Wrong password.")
 			}
 		}

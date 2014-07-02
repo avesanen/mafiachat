@@ -13,21 +13,24 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
             case 'chatMessage':
                 $scope.messageBuffer.push(msg.data);
                 break;
+            case 'loginFailed':
+                break;
             default:
                 $scope.game = msg;
                 $scope.messageBuffer = msg.messages;
-        }
                 calculateVoteLevels($scope.game);
-                //var newPlayers = $scope.gameInfo.game.players;
+        }
 
-                // check if someone joined or leaved the game and who that was (oldPlayers != gameInfo.game.players)
-                /*
-                if (newPlayers.length > oldPlayers.length) {
-                    $scope.log += getJoinedOrPartedPlayer(newPlayers, oldPlayers, true) + " joined the game";
-                } else {
-                    $scope.log += getJoinedOrPartedPlayer(oldPlayers, newPlayers, false) + " left the game";
-                }
-                */
+        //var newPlayers = $scope.gameInfo.game.players;
+
+        // check if someone joined or leaved the game and who that was (oldPlayers != gameInfo.game.players)
+        /*
+        if (newPlayers.length > oldPlayers.length) {
+            $scope.log += getJoinedOrPartedPlayer(newPlayers, oldPlayers, true) + " joined the game";
+        } else {
+            $scope.log += getJoinedOrPartedPlayer(oldPlayers, newPlayers, false) + " left the game";
+        }
+        */
 
         if ($scope) {
             $scope.$apply();
