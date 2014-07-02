@@ -186,9 +186,9 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			}
 			if p.VotingFor != nil {
 				p.VotingFor.Votes--
-				g.serverMessage(p.Name + " changes vote to " + t.Name + ".")
+				//g.serverMessage(p.Name + " changes vote to " + t.Name + ".")
 			} else {
-				g.serverMessage(p.Name + " votes for " + t.Name + ".")
+				//g.serverMessage(p.Name + " votes for " + t.Name + ".")
 			}
 			p.VotingFor = t
 			p.VotingFor.Votes++
@@ -199,7 +199,7 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			if err != nil {
 				return
 			}
-			g.serverMessage(p.Name + " is now protecting " + t.Name + ".")
+			//g.serverMessage(p.Name + " is now protecting " + t.Name + ".")
 			p.Protecting = t
 			p.Done = true
 		}
@@ -211,7 +211,7 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			if err != nil {
 				return
 			}
-			g.serverMessage(p.Name + " identified " + t.Name + ".")
+			//g.serverMessage(p.Name + " identified " + t.Name + ".")
 			p.IdentifiedPlayers = append(p.IdentifiedPlayers, t)
 			p.Done = true
 		}
