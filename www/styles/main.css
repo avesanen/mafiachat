@@ -78,6 +78,10 @@ ul.playerContextMenu {
     display: inline;
 }
 
+#log div.server {
+	color: #428bca;
+}
+
 @media only screen and (min-width: 1200px) {
     div#sendChatMsgBtn {
         float: right;
