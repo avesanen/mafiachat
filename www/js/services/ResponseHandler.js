@@ -5,14 +5,7 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
     var Service = {};
 
     Service.handle = function($scope, msg) {
-        if (!$scope.messageBuffer) {
-            $scope.messageBuffer = [];
-        }
-
         switch (msg.msgType) {
-            case 'chatMessage':
-                $scope.messageBuffer.push(msg.data);
-                break;
             case 'loginFailed':
                 break;
             default:

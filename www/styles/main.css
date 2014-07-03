@@ -96,6 +96,37 @@ timer {
 	color: #428bca;
 }
 
+@keyframes flash {
+    from {
+        color:red;
+    }
+    to {
+        color:#555;
+    }
+}
+@-moz-keyframes flash { /* Firefox */
+    from {
+        color:red;
+    }
+    to {
+        color:#555;
+    }
+}
+@-webkit-keyframes flash { /* Safari and Chrome */
+    from {
+        color:red;
+    }
+    to {
+        color:#555;
+    }
+}
+
+.factionFlash {
+    -moz-animation: flash 1s linear;
+    -o-animation: flash 1s linear;
+    -webkit-animation: flash 1s linear;
+}
+
 @media only screen and (min-width: 1200px) {
     div#sendChatMsgBtn {
         float: right;
@@ -253,10 +284,6 @@ timer {
     #smallDevicesTitleBar {
         display: block;
     }
-}
-
-span.mafiaMessage {
-    color: red;
 }
 
 span.villagerMessage {

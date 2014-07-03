@@ -30,7 +30,7 @@
 
             </div>
             <ul ng-if="contextMenuAvailable()" class="playerContextMenu dropdown-menu" role="menu">
-                <li ng-if="game.myPlayer != player && game.state == 'day'"><a href ng-click="vote(player)">Vote</a></li>
+                <li ng-if="game.myPlayer.name != player.name && game.state == 'day'"><a href ng-click="vote(player)">Vote</a></li>
                 <li ng-if="game.myPlayer.faction == 'mafia' && game.state == 'night'"><a href ng-click="vote(player)">Kill</a></li>
                 <li ng-if="game.myPlayer.faction == 'cop' && game.state == 'night'"><a href ng-click="identify(player)">Identify</a></li>
                 <li ng-if="game.myPlayer.faction == 'doctor' && game.state == 'night'"><a href ng-click="heal(player)">Heal</a></li>
@@ -44,10 +44,11 @@
     <div id="log" class="form-control">
         <ul class="list-unstyled">
             <li ng-repeat="message in messageBuffer">
-                <div ng-class="message.faction">
+                <div class="chatMessage"
+                     ng-class="message.faction">
                     <p>{{message.date}} -</p>
-                    <i>({{message.faction}})</i>
-                    <b>{{message.player}}</b>: <message text="{{message.message}}" />
+                    <i ng-class="{'factionFlash': (message.faction == 'mafia' || message.faction == 'cop' || message.faction == 'doctor') && message.player == game.myPlayer.name && $last}">({{message.faction}})</i>
+                    <b>{{message.player}}:</b> <message text="{{message.message}}" />
                 </div>
             </li>
         </ul>
