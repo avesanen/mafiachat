@@ -23,6 +23,10 @@ img#logo {
     width: 220px;
 }
 
+a.imgThumb {
+    height: 100px;
+}
+
 #container {
 }
 
@@ -41,6 +45,9 @@ ul.playerContextMenu {
     width: 100%;
 }
 
+#playersList ul li.player-state-hidden {
+    background: url("../img/player-new.png") no-repeat 5px 50% white;
+}
 #playersList ul li.player-state-unknown {
     background: url("../img/player-new.png") no-repeat 5px 50% white;
 }
@@ -66,8 +73,13 @@ ul.playerContextMenu {
     float: left;
 }
 
-#log div,#log i, #log b {
+#log p,#log i, #log b {
     vertical-align: top;
+    display: inline;
+}
+
+#log div.server {
+	color: #428bca;
 }
 
 @media only screen and (min-width: 1200px) {
@@ -100,6 +112,7 @@ ul.playerContextMenu {
         min-height: 500px;
         float: right;
         min-width: 200px;
+        max-width: 200px;
     }
 
     #chatContainer {
@@ -145,6 +158,7 @@ ul.playerContextMenu {
         min-height: 300px;
         float: right;
         min-width: 150px;
+        max-width: 150px;
     }
 
     #chatContainer {
@@ -170,6 +184,7 @@ ul.playerContextMenu {
         min-height: 43px;
         float: left;
         min-width: 235px;
+        max-width: 235px;
     }
     div.startGameBtn {
         padding: 0;

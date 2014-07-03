@@ -1,12 +1,12 @@
 <div class="clearfix">
-    <h1 class="pull-left">{{game.name}} - {{game.state}}</h1>
+    <h1 class="pull-left">{{game.name}} - {{game.state}} - {{game.timeLeft}}s left.</h1>
 
     <div ng-if="game.myPlayer.admin && game.state == 'lobby'" class="pull-left startGameBtn">
         <button ng-click="startGame()" tooltip-trigger="mouseenter" tooltip-placement="right" tooltip="{{game.players.length < minPlayers ? 'Not enough players' : ''}}" class="btn btn-success">Start game</button>
     </div>
 </div>
 
-<div id="playersList" class="panel panel-default">
+<div id="playersList" ng-mouseover="showFactionIcons()" ng-mouseout="hideFactionIcons()" class="panel panel-default">
     <ul class="list-group {{playersListToggle}}">
 
         <li id="smallDevicesTitleBar" class="list-group-item" ng-click="togglePlayerList()">
@@ -15,7 +15,7 @@
             </div>
         </li>
 
-        <li class="list-group-item player animate-repeat player-state-{{player.faction}}"
+        <li class="list-group-item player animate-repeat player-state-{{factionHidden || player.faction}}"
             dropdown is-open="status.isopen"
             title="{{roleDescription[player.state]}}"
             ng-repeat="player in game.players">
@@ -23,6 +23,9 @@
                 {{player.name}}<span ng-if="contextMenuAvailable()" class="playerContextMenuCaret caret pull-right"></span>
                 <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
                 <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.online, 'player-state-offline': !player.online}"></span>
+
+                <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.done, 'player-state-offline': !player.done}"></span>
+
             </div>
             <ul ng-if="contextMenuAvailable()" class="playerContextMenu dropdown-menu" role="menu">
                 <li ng-if="game.myPlayer != player && game.state == 'day'"><a href ng-click="vote(player)">Vote</a></li>
@@ -40,7 +43,7 @@
         <ul class="list-unstyled">
             <li ng-repeat="message in messageBuffer">
                 <div ng-class="message.faction">
-                    {{message.date}} -
+                    <p>{{message.date}} -</p>
                     <i>({{message.faction}})</i>
                     <b>{{message.player}}</b>: <message text="{{message.message}}" />
                 </div>

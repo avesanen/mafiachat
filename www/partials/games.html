@@ -5,15 +5,15 @@
     <div class="gamesList">
         <div class="list-group">
             <div ng-show="game.state == 'lobby'" class="list-group-item" ng-repeat="game in games">
-                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{alivePlayers()}}/{{game.maxPlayers}}</span></h4>
+                <h4 class="list-group-item-heading">{{game.name}} <span class="badge pull-right">{{alivePlayers()}}/{{game.maxPlayers || '&infin;'}}</span></h4>
                 <p class="list-group-item-text">
                     <dl class="dl-horizontal">
                         <dt>Number of cops</dt>
-                        <dd>{{game.cops}}</dd>
+                        <dd>{{game.cops || '?'}}</dd>
                         <dt>Number of mafiosi</dt>
-                        <dd>{{game.mafiosi}}</dd>
+                        <dd>{{game.mafiosi || '?'}}</dd>
                         <dt>Number of doctors</dt>
-                        <dd>{{game.doctors}}</dd>
+                        <dd>{{game.doctors || '?'}}</dd>
                     </dl>
 
                     <input ng-show="game.password != ''" ng-change="gameAuth()" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">

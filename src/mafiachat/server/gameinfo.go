@@ -1,11 +1,14 @@
 package server
 
+import "time"
+
 type gameInfo struct {
 	Name     string        `json:"name"`
 	State    string        `json:"state"`
 	Messages []*chatInfo   `json:"messages"`
 	Players  []*playerInfo `json:"players"`
 	MyPlayer *playerInfo   `json:"myPlayer"`
+	TimeLeft int           `json:"timeLeft"`
 }
 
 func (g *gameInfo) addChatMessage(c *chatInfo) {
@@ -22,6 +25,7 @@ type playerInfo struct {
 	Faction string `json:"faction"`
 	Votes   int    `json:"votes"`
 	Online  bool   `json:"online"`
+	Done    bool   `json:"done"`
 }
 
 type chatInfo struct {
@@ -36,10 +40,17 @@ func getGameInfo(g *game, p *player) *gameInfo {
 	gi := &gameInfo{}
 	gi.Name = g.Name
 	gi.State = g.State
+	if g.State != "lobby" {
+		gi.TimeLeft = int((StateTimeout - time.Since(g.StateTime)).Seconds())
+	} else {
+		gi.TimeLeft = 0
+	}
 	// Generate player facts
 	for i := 0; i < len(g.Players); i++ {
 		pi := &playerInfo{}
 		pi.Name = g.Players[i].Name
+
+		// Generate shown faction
 		identified := false
 		if g.Players[i].Faction == p.Faction && p.Faction != "villager" {
 			identified = true
@@ -61,6 +72,21 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		} else {
 			pi.Faction = "unknown"
 		}
+
+		// Generate "player done" fact.
+		if g.State == "day" {
+			pi.Done = g.Players[i].Done
+		} else if g.State == "night" {
+			if p.Faction == g.Players[i].Faction {
+				pi.Done = g.Players[i].Done
+			} else {
+				pi.Done = true
+			}
+		} else {
+			pi.Done = true
+		}
+
+		// Generate shown votes fact
 		if g.State == "night" && p.Faction == "mafia" {
 			pi.Votes = g.Players[i].Votes
 		} else if g.State == "day" {
@@ -68,11 +94,16 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		} else {
 			pi.Votes = 0
 		}
+
+		// Generate myplayer fact
 		pi.Admin = g.Players[i].Admin
 		if pi.Name == p.Name {
 			gi.MyPlayer = pi
 		}
+
+		// Online status
 		pi.Online = g.Players[i].Connection != nil
+
 		gi.addPlayer(pi)
 	}
 

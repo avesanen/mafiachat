@@ -113,6 +113,10 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Println("json can't unmarshal loginMessage", string(s), err)
 				}
+				if loginMsg.Data.Name == "Server" {
+					log.Println("Someone is trying to log in player 'Server'... :P")
+					continue
+				}
 				err = g.loginMessage(&loginMsg, p)
 				if err == nil {
 					log.Println("Player logged in to game")

@@ -85,6 +85,11 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
             return false;
         }
 
+        // Doctors can't vote themselves
+        if (this.player.name == $scope.game.myPlayer.name && $scope.game.myPlayer.faction == 'doctor' && $scope.game.state == 'day') {
+            return false;
+        }
+
         // Ghosts can't do anything
         if ($scope.game.myPlayer.faction == 'ghost' || this.player.faction == 'ghost') {
             return false;
@@ -106,5 +111,13 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     $scope.togglePlayerList = function() {
         $scope.playersListToggle = $scope.playersListToggle == 'expanded' ? '' : 'expanded';
     }
+	
+	$scope.showFactionIcons = function() {
+		$scope.factionHidden = undefined;
+	}
+	
+	$scope.hideFactionIcons = function() {
+		$scope.factionHidden = "hidden";
+	}
 }]);
 
