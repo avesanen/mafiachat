@@ -28,7 +28,7 @@ type game struct {
 }
 
 const (
-	StateTimeout = 15 * time.Minute // 10 minute timeout
+	StateTimeout = 15 * time.Second // 10 minute timeout
 )
 
 // Return a new game
@@ -140,6 +140,7 @@ func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
 		chatMsg.Data.Faction = "villager"
 	}
 	g.MessageBuffer = append(g.MessageBuffer, chatMsg)
+	g.checkCycle()
 	g.broadcastGameInfo()
 }
 
@@ -176,13 +177,7 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			p.VotingFor.Votes++
 			p.Done = true
 		}
-		if g.dayDone() {
-			if g.checkVictory() {
-				g.endGame()
-			} else {
-				g.startNight()
-			}
-		}
+		g.checkCycle()
 		break
 
 	case "night":
@@ -222,6 +217,23 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			p.IdentifiedPlayers = append(p.IdentifiedPlayers, t)
 			p.Done = true
 		}
+		g.checkCycle()
+		break
+	}
+	g.broadcastGameInfo()
+}
+
+func (g *game) checkCycle() {
+	switch g.State {
+	case "day":
+		if g.dayDone() {
+			if g.checkVictory() {
+				g.endGame()
+			} else {
+				g.startNight()
+			}
+		}
+	case "night":
 		if g.nightDone() {
 			if g.checkVictory() {
 				g.endGame()
@@ -229,9 +241,7 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 				g.startDay()
 			}
 		}
-		break
 	}
-	g.broadcastGameInfo()
 }
 
 func (g *game) startGame() {
@@ -417,13 +427,13 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 					g.broadcastGameInfo()
 					return nil
 				} else {
-					p.Connection.Outbound <- []byte(`{"msgType":"loginFailed", "reason":"alreadyLoggedIn"}`);
+					p.Connection.Outbound <- []byte(`{"msgType":"loginFailed", "reason":"alreadyLoggedIn"}`)
 					return errors.New("Already logged in and online, kick not supported yet.")
 				}
 				return nil
 			} else {
 				// Name already exists, but password doesn't match.
-				p.Connection.Outbound <- []byte(`{"msgType":"loginFailed", "reason":"wrongPassword"}`);
+				p.Connection.Outbound <- []byte(`{"msgType":"loginFailed", "reason":"wrongPassword"}`)
 				return errors.New("Wrong password.")
 			}
 		}
