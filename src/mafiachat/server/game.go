@@ -386,7 +386,7 @@ func (g *game) nightDone() bool {
 				g.Players[i].Faction = "ghost"
 				return true
 			} else {
-				g.serverMessage(g.Players[i].Name + " was wounded by mafia, but saved by a doctor.")
+				g.serverMessage("No one died last night.")
 				return true
 			}
 		}
