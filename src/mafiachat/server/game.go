@@ -28,7 +28,7 @@ type game struct {
 }
 
 const (
-	StateTimeout = 15 * time.Second // 10 minute timeout
+	StateTimeout = 15 * time.Minute // 10 minute timeout
 )
 
 // Return a new game
@@ -70,6 +70,15 @@ func (g *game) addPlayer(p *player) {
 
 // Remove player from game
 func (g *game) rmPlayer(p *player) {
+	// If game is at lobby, remove the player completely (also freeing up the name).
+	if g.State == "lobby" {
+		for i := range g.Players {
+			if g.Players[i] == p {
+				g.Players = append(g.Players[:i], g.Players[i+1:]...)
+				return
+			}
+		}
+	}
 	p.State = "offline"
 	p.Connection = nil
 	g.broadcastGameInfo()
@@ -347,6 +356,11 @@ func (g *game) dayDone() bool {
 		} else if g.Players[i].Votes == votesCount {
 			mostVotes = append(mostVotes, g.Players[i])
 		}
+	}
+
+	if votesCount == 0 {
+		g.serverMessage("Villages didn't vote, nobody dies.")
+		return true
 	}
 
 	toBeKilled := mostVotes[rand.Intn(len(mostVotes))]
