@@ -23,6 +23,9 @@
                 {{player.name}}<span ng-if="contextMenuAvailable()" class="playerContextMenuCaret caret pull-right"></span>
                 <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
                 <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.online, 'player-state-offline': !player.online}"></span>
+
+                <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.done, 'player-state-offline': !player.done}"></span>
+                
             </div>
             <ul ng-if="contextMenuAvailable()" class="playerContextMenu dropdown-menu" role="menu">
                 <li ng-if="game.myPlayer != player && game.state == 'day'"><a href ng-click="vote(player)">Vote</a></li>

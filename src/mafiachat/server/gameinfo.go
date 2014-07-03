@@ -22,6 +22,7 @@ type playerInfo struct {
 	Faction string `json:"faction"`
 	Votes   int    `json:"votes"`
 	Online  bool   `json:"online"`
+	Done    bool   `json:"done"`
 }
 
 type chatInfo struct {
@@ -40,6 +41,8 @@ func getGameInfo(g *game, p *player) *gameInfo {
 	for i := 0; i < len(g.Players); i++ {
 		pi := &playerInfo{}
 		pi.Name = g.Players[i].Name
+
+		// Generate shown faction
 		identified := false
 		if g.Players[i].Faction == p.Faction && p.Faction != "villager" {
 			identified = true
@@ -61,6 +64,21 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		} else {
 			pi.Faction = "unknown"
 		}
+
+		// Generate "player done" fact.
+		if g.State == "day" {
+			pi.Done = g.Players[i].Done
+		} else if g.State == "night" {
+			if p.Faction == g.Players[i].Faction {
+				pi.Done = g.Players[i].Done
+			} else {
+				pi.Done = true
+			}
+		} else {
+			pi.Done = true
+		}
+
+		// Generate shown votes fact
 		if g.State == "night" && p.Faction == "mafia" {
 			pi.Votes = g.Players[i].Votes
 		} else if g.State == "day" {
@@ -68,11 +86,16 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		} else {
 			pi.Votes = 0
 		}
+
+		// Generate myplayer fact
 		pi.Admin = g.Players[i].Admin
 		if pi.Name == p.Name {
 			gi.MyPlayer = pi
 		}
+
+		// Online status
 		pi.Online = g.Players[i].Connection != nil
+
 		gi.addPlayer(pi)
 	}
 

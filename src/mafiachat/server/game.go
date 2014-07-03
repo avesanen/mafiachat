@@ -73,8 +73,9 @@ func (g *game) rmPlayer(p *player) {
 	// If game is at lobby, remove the player completely (also freeing up the name).
 	if g.State == "lobby" {
 		for i := range g.Players {
-			if g.Players[i] == p {
+			if g.Players[i] == p && !p.Admin {
 				g.Players = append(g.Players[:i], g.Players[i+1:]...)
+				g.broadcastGameInfo()
 				return
 			}
 		}
