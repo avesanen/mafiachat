@@ -6,7 +6,7 @@
     </div>
 </div>
 
-<div id="playersList" class="panel panel-default">
+<div id="playersList" ng-mouseover="showFactionIcons()" ng-mouseout="hideFactionIcons()" class="panel panel-default">
     <ul class="list-group {{playersListToggle}}">
 
         <li id="smallDevicesTitleBar" class="list-group-item" ng-click="togglePlayerList()">
@@ -15,7 +15,7 @@
             </div>
         </li>
 
-        <li class="list-group-item player animate-repeat player-state-{{player.faction}}"
+        <li class="list-group-item player animate-repeat player-state-{{factionHidden || player.faction}}"
             dropdown is-open="status.isopen"
             title="{{roleDescription[player.state]}}"
             ng-repeat="player in game.players">

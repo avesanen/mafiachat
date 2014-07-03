@@ -45,6 +45,9 @@ ul.playerContextMenu {
     width: 100%;
 }
 
+#playersList ul li.player-state-hidden {
+    background: url("../img/player-new.png") no-repeat 5px 50% white;
+}
 #playersList ul li.player-state-unknown {
     background: url("../img/player-new.png") no-repeat 5px 50% white;
 }

@@ -111,5 +111,13 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     $scope.togglePlayerList = function() {
         $scope.playersListToggle = $scope.playersListToggle == 'expanded' ? '' : 'expanded';
     }
+	
+	$scope.showFactionIcons = function() {
+		$scope.factionHidden = undefined;
+	}
+	
+	$scope.hideFactionIcons = function() {
+		$scope.factionHidden = "hidden";
+	}
 }]);
 
