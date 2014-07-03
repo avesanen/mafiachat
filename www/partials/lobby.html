@@ -1,9 +1,11 @@
 <div class="clearfix">
-    <h1 class="pull-left">{{game.name}} - {{game.state}} - {{game.timeLeft}}s left.</h1>
+    <h1 class="pull-left">{{game.name}}</h1>
 
     <div ng-if="game.myPlayer.admin && game.state == 'lobby'" class="pull-left startGameBtn">
         <button ng-click="startGame()" tooltip-trigger="mouseenter" tooltip-placement="right" tooltip="{{game.players.length < minPlayers ? 'Not enough players' : ''}}" class="btn btn-success">Start game</button>
     </div>
+
+    <div class="timeLeft state-{{game.state}}"><timer time="{{game.timeLeft}}" countdown="true" /></div>
 </div>
 
 <div id="playersList" ng-mouseover="showFactionIcons()" ng-mouseout="hideFactionIcons()" class="panel panel-default">
