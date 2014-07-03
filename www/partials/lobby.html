@@ -1,5 +1,5 @@
 <div class="clearfix">
-    <h1 class="pull-left">{{game.name}} - {{game.state}}</h1>
+    <h1 class="pull-left">{{game.name}} - {{game.state}} - {{game.timeLeft}}s left.</h1>
 
     <div ng-if="game.myPlayer.admin && game.state == 'lobby'" class="pull-left startGameBtn">
         <button ng-click="startGame()" tooltip-trigger="mouseenter" tooltip-placement="right" tooltip="{{game.players.length < minPlayers ? 'Not enough players' : ''}}" class="btn btn-success">Start game</button>
@@ -25,7 +25,7 @@
                 <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.online, 'player-state-offline': !player.online}"></span>
 
                 <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.done, 'player-state-offline': !player.done}"></span>
-                
+
             </div>
             <ul ng-if="contextMenuAvailable()" class="playerContextMenu dropdown-menu" role="menu">
                 <li ng-if="game.myPlayer != player && game.state == 'day'"><a href ng-click="vote(player)">Vote</a></li>

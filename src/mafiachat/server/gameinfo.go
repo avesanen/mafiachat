@@ -1,11 +1,14 @@
 package server
 
+import "time"
+
 type gameInfo struct {
 	Name     string        `json:"name"`
 	State    string        `json:"state"`
 	Messages []*chatInfo   `json:"messages"`
 	Players  []*playerInfo `json:"players"`
 	MyPlayer *playerInfo   `json:"myPlayer"`
+	TimeLeft int           `json:"timeLeft"`
 }
 
 func (g *gameInfo) addChatMessage(c *chatInfo) {
@@ -37,6 +40,11 @@ func getGameInfo(g *game, p *player) *gameInfo {
 	gi := &gameInfo{}
 	gi.Name = g.Name
 	gi.State = g.State
+	if g.State != "lobby" {
+		gi.TimeLeft = int((StateTimeout - time.Since(g.StateTime)).Seconds())
+	} else {
+		gi.TimeLeft = 0
+	}
 	// Generate player facts
 	for i := 0; i < len(g.Players); i++ {
 		pi := &playerInfo{}
