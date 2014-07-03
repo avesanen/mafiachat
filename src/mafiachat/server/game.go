@@ -389,9 +389,22 @@ func (g *game) nightDone() bool {
 			everyoneReady = false
 		}
 	}
+
+	// Check if all mafia votes for same person
+	var mafiaVotesFor *player = nil
+	for i := range g.Players {
+		if g.Players[i].Faction == "mafia" {
+			if g.Players[i].VotingFor != mafiaVotesFor && mafiaVotesFor != nil {
+				everyoneReady = false
+			}
+			mafiaVotesFor = g.Players[i].VotingFor
+		}
+	}
+
 	if !everyoneReady && time.Since(g.StateTime) < StateTimeout {
 		return false
 	}
+
 	mafiosos := g.countFaction("mafia")
 
 	for i := 0; i < len(g.Players); i++ {
