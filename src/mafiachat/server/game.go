@@ -33,6 +33,7 @@ const (
 
 // Return a new game
 func newGame() *game {
+	rand.Seed(time.Now().UTC().UnixNano())
 	g := &game{}
 	g.State = "lobby"
 	g.StateTime = time.Now()
