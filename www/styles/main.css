@@ -428,3 +428,36 @@ h4.list-group-item-heading{
 .player-state-offline {
     color: red;
 }
+
+
+img#logo {
+    width: 600px;
+    margin-bottom: 25px;
+} 
+#centerContent{
+    width: 600px;
+    margin-left: -300px;
+}
+
+
+.navbar-inverse{
+    background-color: #111;
+}
+
+.navbar-inverse .navbar-nav>.active>a{
+    background-color: #b22020;
+
+}
+.navbar-inverse .navbar-nav>.active>a:hover{
+    background-color: #a31d1d;
+
+}
+.navbar-inverse .navbar-nav>li>a{
+    background-color: #000;
+
+}
+
+
+#horizon{
+    top: 15%;
+}
