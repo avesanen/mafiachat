@@ -80,6 +80,11 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     };
 
     $scope.contextMenuAvailable = function() {
+        // Villagers can't do anything during night
+        if ($scope.game.myPlayer.faction == 'villager' && $scope.game.state == 'night') {
+            return false;
+        }
+
         // Only doctors can heal themselves
         if (this.player.name == $scope.game.myPlayer.name && $scope.game.myPlayer.faction != 'doctor') {
             return false;

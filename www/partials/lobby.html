@@ -5,7 +5,7 @@
         <button ng-click="startGame()" tooltip-trigger="mouseenter" tooltip-placement="right" tooltip="{{game.players.length < minPlayers ? 'Not enough players' : ''}}" class="btn btn-success">Start game</button>
     </div>
 
-    <div class="timeLeft state-{{game.state}}"><timer time="{{game.timeLeft}}" countdown="true" /></div>
+    <div class="timeLeft state-{{game.state}}"><timer ng-show="game.state == 'day' || game.state == 'night'" time="{{game.timeLeft}}" countdown="true" /></div>
 </div>
 
 <div id="playersList" ng-mouseover="showFactionIcons()" ng-mouseout="hideFactionIcons()" class="panel panel-default">

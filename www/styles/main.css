@@ -70,7 +70,7 @@ ul.playerContextMenu {
     background: url("../img/player-spectator.png") no-repeat 5px 50% white;
 }
 div.state-lobby {
-    background: url("../img/lobby.png") no-repeat 0 0 transparent;
+    background: url("../img/lobby.png") no-repeat center 0 transparent;
 }
 div.state-day {
     background: url("../img/day_box.png") no-repeat 0 0 transparent;
@@ -79,10 +79,10 @@ div.state-night {
     background: url("../img/night_box.png") no-repeat 0 0 transparent;
 }
 div.state-mafia-win {
-    background: url("../img/mafia-win.png") no-repeat 0 0 transparent;
+    background: url("../img/mafia-win.png") no-repeat center 0 transparent;
 }
 div.state-villager-win {
-    background: url("../img/villager-win.png") no-repeat 0 0 transparent;
+    background: url("../img/villager-win.png") no-repeat center 0 transparent;
 }
 timer {
     display: block;
@@ -258,6 +258,7 @@ timer {
     #playersList {
         max-height: 43px;
         width: 100%;
+        min-width: 235px;
         min-height: 43px;
         float: left;
     }
