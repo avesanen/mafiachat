@@ -128,11 +128,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
 	}
 
     $scope.openContextMenu = function() {
-        $scope.contextMenuForPlayer = this.player.name;
-    }
-
-    $scope.closeContextMenu = function() {
-        $scope.contextMenuForPlayer = undefined;
+        $scope.contextMenuForPlayer = this.player.name.replace(/ /g, '');
     }
 }]);
 

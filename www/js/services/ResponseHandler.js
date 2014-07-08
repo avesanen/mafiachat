@@ -5,6 +5,7 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
     var Service = {};
 
     Service.handle = function($scope, msg) {
+        var openContextMenu = angular.element(document.getElementById("playerListItem-"+$scope.contextMenuForPlayer)).hasClass("open");
         switch (msg.msgType) {
             case 'loginFailed':
                 break;
@@ -23,7 +24,7 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
         if ($scope) {
             $scope.$apply();
 
-            if ($scope.contextMenuForPlayer) {
+            if (openContextMenu) {
                 angular.element(document.getElementById("player-"+$scope.contextMenuForPlayer)).triggerHandler('click');
             }
         }
