@@ -8,15 +8,6 @@ import (
 	"time"
 )
 
-/* snippets:
-Shuffle
-	dest := make([]int, len(src))
-	perm := rand.Perm(len(src))
-	for i, v := range perm {
-	    dest[v] = src[i]
-	}
-*/
-
 type game struct {
 	Players       []*player      `json:"players"`
 	State         string         `json:"state"`
@@ -25,7 +16,7 @@ type game struct {
 	Password      string         `json:"password"`
 	MessageBuffer []*chatMessage `json:"-"`
 	StateTime     time.Time      `json:"-"`
-	Winne         string         `json:"winner"`
+	Winner        string         `json:"winner"`
 }
 
 const (
@@ -39,6 +30,7 @@ func newGame() *game {
 	g.State = "lobby"
 	g.StateTime = time.Now()
 	g.Name = "MafiosoGame"
+	g.Winner = ""
 	g.Players = make([]*player, 0)
 	if g.Id != "" {
 		gameList[g.Id] = g
@@ -263,7 +255,7 @@ func (g *game) checkCycle() {
 
 func (g *game) startGame() {
 	g.State = "lobby"
-
+	g.Winner = ""
 	players := g.Players
 	for i := range players {
 		if players[i].State == "offline" {
@@ -323,17 +315,19 @@ func (g *game) endGame() {
 func (g *game) checkVictory() bool {
 	if g.countFaction("mafia") == 0 {
 		g.serverMessage("Last mafioso has died. Good guys win!")
+		g.Winner = "villager"
 		return true
 	}
 	// count alivePlayers
 	alivePlayers := 0
 	for i := 0; i < len(g.Players); i++ {
-		if !g.Players[i].Dead && g.Players[i].Faction != "mafia" {
+		if !g.Players[i].Dead && !g.Players[i].Spectator && g.Players[i].Faction != "mafia" {
 			alivePlayers++
 		}
 	}
 	if g.countFaction("mafia") >= alivePlayers {
 		g.serverMessage("Too few good guys to finish off mafiosos. Bad guys win!")
+		g.Winner = "mafia"
 		return true
 	}
 	g.serverMessage("No victor yet, game continues!")
@@ -362,7 +356,7 @@ func (g *game) dayDone() bool {
 	// count alivePlayers
 	alivePlayers := 0
 	for i := 0; i < len(g.Players); i++ {
-		if !g.Players[i].Dead {
+		if !g.Players[i].Dead && !g.Players[i].Spectator {
 			alivePlayers++
 		}
 	}
@@ -428,14 +422,10 @@ func (g *game) nightDone() bool {
 	mafiosos := g.countFaction("mafia")
 
 	for i := 0; i < len(g.Players); i++ {
-		log.Println(g.Players[i].Name, "has", g.Players[i].Votes, "votes.")
 		if g.Players[i].Votes == mafiosos {
 			playerProtected := false
 			for j := 0; j < len(g.Players); j++ {
-				log.Println(g.Players[j].Protecting)
 				if g.Players[j].Protecting == g.Players[i] {
-					log.Println(g.Players[j].Name + " is protecting " + g.Players[j].Protecting.Name)
-					log.Println(g.Players[j] == g.Players[i])
 					playerProtected = true
 				}
 			}
@@ -464,7 +454,6 @@ func (g *game) countFaction(f string) int {
 }
 
 func (g *game) loginMessage(msg *loginMessage, p *player) error {
-	log.Println("login message")
 	for i := 0; i < len(g.Players); i++ {
 		if g.Players[i].Name == msg.Data.Name {
 			if g.Players[i].Password == msg.Data.Password {

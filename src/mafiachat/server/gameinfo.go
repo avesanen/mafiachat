@@ -41,7 +41,15 @@ func getGameInfo(g *game, p *player) *gameInfo {
 	// Generate game facts
 	gi := &gameInfo{}
 	gi.Name = g.Name
-	gi.State = g.State
+	if g.State == "debrief" {
+		if g.Winner == "mafia" {
+			gi.State = "mafia-win"
+		} else if g.Winner == "villager" {
+			gi.State = "villager-win"
+		}
+	} else {
+		gi.State = g.State
+	}
 	if g.State != "lobby" && g.State != "debrief" {
 		gi.TimeLeft = int((StateTimeout - time.Since(g.StateTime)).Seconds())
 	} else {
