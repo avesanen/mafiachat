@@ -12,21 +12,20 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 $scope.game = msg;
                 $scope.messageBuffer = msg.messages;
                 calculateVoteLevels($scope.game);
-        }
 
-        //var newPlayers = $scope.gameInfo.game.players;
-
-        // check if someone joined or leaved the game and who that was (oldPlayers != gameInfo.game.players)
-        /*
-        if (newPlayers.length > oldPlayers.length) {
-            $scope.log += getJoinedOrPartedPlayer(newPlayers, oldPlayers, true) + " joined the game";
-        } else {
-            $scope.log += getJoinedOrPartedPlayer(oldPlayers, newPlayers, false) + " left the game";
+                if ($scope.game.state == 'villager-win' || $scope.game.state == 'mafia-win') {
+                    $scope.factionHidden = undefined;
+                } else {
+                    $scope.factionHidden = "hidden";
+                }
         }
-        */
 
         if ($scope) {
             $scope.$apply();
+
+            if ($scope.contextMenuForPlayer) {
+                angular.element(document.getElementById("player-"+$scope.contextMenuForPlayer)).triggerHandler('click');
+            }
         }
 
         var objDiv = document.getElementById("log");
@@ -57,24 +56,6 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 }
             }
         }
-    }
-
-    function getJoinedOrPartedPlayer(players1, players2, joins) {
-        for (var i = 0; i < players1.length; i++) {
-            var found = false;
-            for (var j = 0; j < players2.length; j++) {
-                if (players1[i].name == players2[j].name) {
-                    found = true;
-                }
-            }
-            if (joins && !found && players1[i].name != "") {
-                return players1[i].name;
-
-            } else if (!joins && !found && players1[i].name != "" ) {
-                return players1[i].name;
-            }
-        }
-        return "WTF!?";
     }
 
     return Service;
