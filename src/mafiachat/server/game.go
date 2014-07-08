@@ -42,7 +42,7 @@ func (g *game) zeroVotes() {
 	for i := 0; i < len(g.Players); i++ {
 		g.Players[i].Votes = 0
 		g.Players[i].VotingFor = nil
-		if g.Players[i].Dead {
+		if g.Players[i].Dead || g.Players[i].Spectator {
 			g.Players[i].Done = true
 		} else {
 			g.Players[i].Done = false
@@ -390,7 +390,7 @@ func (g *game) startNight() {
 	g.StateTime = time.Now()
 	g.zeroVotes()
 	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Faction == "villager" || g.Players[i].Dead {
+		if g.Players[i].Faction == "villager" || g.Players[i].Dead || g.Players[i].Spectator {
 			g.Players[i].Done = true
 		}
 	}
