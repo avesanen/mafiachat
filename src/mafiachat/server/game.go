@@ -25,6 +25,7 @@ type game struct {
 	Password      string         `json:"password"`
 	MessageBuffer []*chatMessage `json:"-"`
 	StateTime     time.Time      `json:"-"`
+	Winne         string         `json:"winner"`
 }
 
 const (
@@ -72,7 +73,7 @@ func (g *game) addPlayer(p *player) {
 // Remove player from game
 func (g *game) rmPlayer(p *player) {
 	// If game is at lobby, remove the player completely (also freeing up the name).
-	if g.State == "lobby" || g.State == "debrief" || p.Spectator {
+	if g.State == "lobby" || p.Spectator {
 		for i := range g.Players {
 			if g.Players[i] == p && !p.Admin {
 				g.Players = append(g.Players[:i], g.Players[i+1:]...)

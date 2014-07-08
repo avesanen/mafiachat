@@ -10,7 +10,7 @@ type player struct {
 	Name              string      `json:"name"`
 	Password          string      `json:"-"`
 	State             string      `json:"state"`
-	Faction           string      `json:"faction"`
+	Faction           string      `json:"-"`
 	Connection        *connection `json:"-"`
 	Votes             int         `json:"votes"`
 	VotingFor         *player     `json:"-"`

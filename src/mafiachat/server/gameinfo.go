@@ -58,12 +58,12 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		identifiedAs := "unknown"
 		if g.State == "debrief" {
 			identifiedAs = g.Players[i].Faction
+		} else if pi.Dead {
+			identifiedAs = "ghost"
 		} else if g.Players[i].Name == p.Name {
 			identifiedAs = p.Faction
 		} else if p.Spectator {
 			identifiedAs = "unknown"
-		} else if pi.Dead {
-			identifiedAs = "ghost"
 		} else if pi.Spectator {
 			identifiedAs = "spectator"
 		} else if p.Dead {
