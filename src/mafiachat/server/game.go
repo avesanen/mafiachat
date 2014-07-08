@@ -343,22 +343,21 @@ func (g *game) startDay() {
 // dayDone will check if someone has majority vote, execute that player
 // and return true so the night can begin.
 func (g *game) dayDone() bool {
-	everyoneReady := true
-	for i := 0; i < len(g.Players); i++ {
-		if !g.Players[i].Done && !g.Players[i].Spectator {
-			everyoneReady = false
-		}
-	}
-	if !everyoneReady && time.Since(g.StateTime) < StateTimeout {
-		return false
-	}
-
-	// count alivePlayers
 	alivePlayers := 0
 	for i := 0; i < len(g.Players); i++ {
 		if !g.Players[i].Dead && !g.Players[i].Spectator {
 			alivePlayers++
 		}
+	}
+
+	majorityVoted := false
+	for i := range g.Players {
+		if g.Players[i].Votes > alivePlayers/2 {
+			majorityVoted = true
+		}
+	}
+	if majorityVoted == false {
+		return false
 	}
 
 	mostVotes := make([]*player, 0)
