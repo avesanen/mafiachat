@@ -18,6 +18,8 @@ type player struct {
 	Admin             bool        `json:"admin"`
 	IdentifiedPlayers []*player   `json:"-"`
 	Done              bool        `json:"-"`
+	Dead              bool        `json:"dead"`
+	Spectator         bool        `json:"dead"`
 	PlayerIntel       []struct {
 		Name    string `json:"name"`
 		Faction string `json:"faction"`

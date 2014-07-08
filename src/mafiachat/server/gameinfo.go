@@ -20,12 +20,14 @@ func (g *gameInfo) addPlayer(p *playerInfo) {
 }
 
 type playerInfo struct {
-	Name    string `json:"name"`
-	Admin   bool   `json:"admin"`
-	Faction string `json:"faction"`
-	Votes   int    `json:"votes"`
-	Online  bool   `json:"online"`
-	Done    bool   `json:"done"`
+	Name      string `json:"name"`
+	Admin     bool   `json:"admin"`
+	Faction   string `json:"faction"`
+	Votes     int    `json:"votes"`
+	Online    bool   `json:"online"`
+	Done      bool   `json:"done"`
+	Dead      bool   `json:"dead"`
+	Spectator bool   `json:"spectator"`
 }
 
 type chatInfo struct {
@@ -40,7 +42,7 @@ func getGameInfo(g *game, p *player) *gameInfo {
 	gi := &gameInfo{}
 	gi.Name = g.Name
 	gi.State = g.State
-	if g.State != "lobby" {
+	if g.State != "lobby" && g.State != "debrief" {
 		gi.TimeLeft = int((StateTimeout - time.Since(g.StateTime)).Seconds())
 	} else {
 		gi.TimeLeft = 0
@@ -49,45 +51,61 @@ func getGameInfo(g *game, p *player) *gameInfo {
 	for i := 0; i < len(g.Players); i++ {
 		pi := &playerInfo{}
 		pi.Name = g.Players[i].Name
+		pi.Dead = g.Players[i].Dead
+		pi.Spectator = g.Players[i].Spectator
 
 		// Generate shown faction
-		identified := false
-		if g.Players[i].Faction == p.Faction && p.Faction != "villager" {
-			identified = true
+		identifiedAs := "unknown"
+		if g.State == "debrief" {
+			identifiedAs = g.Players[i].Faction
 		} else if g.Players[i].Name == p.Name {
-			identified = true
-		} else if p.Faction == "ghost" {
-			identified = true
-		}
-		for j := 0; j < len(p.IdentifiedPlayers); j++ {
-			if p.IdentifiedPlayers[j].Name == g.Players[i].Name {
-				identified = true
+			identifiedAs = p.Faction
+		} else if p.Spectator {
+			identifiedAs = "unknown"
+		} else if pi.Dead {
+			identifiedAs = "ghost"
+		} else if pi.Spectator {
+			identifiedAs = "spectator"
+		} else if p.Dead {
+			identifiedAs = g.Players[i].Faction
+		} else if g.Players[i].Faction == p.Faction && p.Faction != "villager" {
+			identifiedAs = g.Players[i].Faction
+		} else {
+			for j := 0; j < len(p.IdentifiedPlayers); j++ {
+				if p.IdentifiedPlayers[j].Name == g.Players[i].Name {
+					if g.Players[i].Faction == "mafia" {
+						identifiedAs = "mafia"
+					} else {
+						identifiedAs = "villager"
+					}
+				}
 			}
 		}
-		if g.Players[i].Faction == "ghost" {
-			identified = true
-		}
-		if identified {
-			pi.Faction = g.Players[i].Faction
-		} else {
-			pi.Faction = "unknown"
-		}
+		pi.Faction = identifiedAs
 
 		// Generate "player done" fact.
-		if g.State == "day" {
-			pi.Done = g.Players[i].Done
+		playerDone := true
+		if g.State == "debrief" {
+			playerDone = true
+		} else if p.Spectator {
+			playerDone = true
+		} else if pi.Spectator {
+			playerDone = true
+		} else if g.State == "day" {
+			playerDone = g.Players[i].Done
 		} else if g.State == "night" {
 			if p.Faction == g.Players[i].Faction {
-				pi.Done = g.Players[i].Done
+				playerDone = g.Players[i].Done
 			} else {
-				pi.Done = true
+				playerDone = true
 			}
-		} else {
-			pi.Done = true
 		}
+		pi.Done = playerDone
 
 		// Generate shown votes fact
-		if g.State == "night" && p.Faction == "mafia" {
+		if p.Spectator {
+			pi.Votes = 0
+		} else if g.State == "night" && p.Faction == "mafia" {
 			pi.Votes = g.Players[i].Votes
 		} else if g.State == "day" {
 			pi.Votes = g.Players[i].Votes
@@ -109,13 +127,17 @@ func getGameInfo(g *game, p *player) *gameInfo {
 
 	for i := 0; i < len(g.MessageBuffer); i++ {
 		visible := false
-		if g.MessageBuffer[i].Data.Faction == p.Faction {
+		if g.State == "debrief" {
+			visible = true
+		} else if g.MessageBuffer[i].Data.Faction == p.Faction {
 			visible = true
 		} else if g.MessageBuffer[i].Data.Faction == "server" {
 			visible = true
 		} else if g.MessageBuffer[i].Data.Faction == "villager" {
 			visible = true
-		} else if p.Faction == "ghost" {
+		} else if p.Dead {
+			visible = true
+		} else if g.State == "debrief" {
 			visible = true
 		}
 		if visible {

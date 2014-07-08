@@ -49,7 +49,7 @@ func (g *game) zeroVotes() {
 	for i := 0; i < len(g.Players); i++ {
 		g.Players[i].Votes = 0
 		g.Players[i].VotingFor = nil
-		if g.Players[i].Faction == "ghost" {
+		if g.Players[i].Dead {
 			g.Players[i].Done = true
 		} else {
 			g.Players[i].Done = false
@@ -72,7 +72,7 @@ func (g *game) addPlayer(p *player) {
 // Remove player from game
 func (g *game) rmPlayer(p *player) {
 	// If game is at lobby, remove the player completely (also freeing up the name).
-	if g.State == "lobby" {
+	if g.State == "lobby" || p.Spectator {
 		for i := range g.Players {
 			if g.Players[i] == p && !p.Admin {
 				g.Players = append(g.Players[:i], g.Players[i+1:]...)
@@ -145,7 +145,7 @@ func (g *game) chatMessage(chatMsg *chatMessage, p *player) {
 	chatMsg.Data.Player = p.Name
 	chatMsg.Data.Date = time.Now().Format("15:04:05")
 
-	if p.Faction == "ghost" {
+	if p.Dead {
 		chatMsg.Data.Faction = "ghost"
 	} else if chatMsg.Data.Faction != p.Faction {
 		chatMsg.Data.Faction = "villager"
@@ -172,8 +172,13 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			g.startGame()
 		}
 
+	case "debrief":
+		if msg.Data.Action == "startGame" && p.Admin == true {
+			g.startGame()
+		}
+
 	case "day":
-		if msg.Data.Action == "vote" && p.Faction != "ghost" {
+		if msg.Data.Action == "vote" && !p.Dead {
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
 				return
@@ -262,6 +267,8 @@ func (g *game) startGame() {
 	}
 	for i := 0; i < len(g.Players); i++ {
 		g.Players[i].Faction = "villager"
+		g.Players[i].Spectator = false
+		g.Players[i].Dead = false
 	}
 	if len(g.Players) < 6 {
 		g.Players[0].Faction = "mafia"
@@ -273,7 +280,7 @@ func (g *game) startGame() {
 		g.Players[2].Faction = "cop"
 		g.Players[3].Faction = "doctor"
 		g.Players[4].Faction = "doctor"
-	} else if len(g.Players) < 15 {
+	} else {
 		g.Players[0].Faction = "mafia"
 		g.Players[1].Faction = "mafia"
 		g.Players[2].Faction = "mafia"
@@ -289,14 +296,17 @@ func (g *game) startGame() {
 		j := rand.Intn(len(g.Players))
 		g.Players[i].Faction, g.Players[j].Faction = g.Players[j].Faction, g.Players[i].Faction
 	}
+	g.MessageBuffer = make([]*chatMessage, 0)
 	g.startNight()
 }
 
 func (g *game) endGame() {
-	for i := 0; i < len(g.Players); i++ {
-		g.Players[i].Faction = "villager"
+	g.State = "debrief"
+	for i := range g.Players {
+		if g.Players[i].State == "offline" {
+			g.rmPlayer(g.Players[i])
+		}
 	}
-	g.State = "lobby"
 	g.zeroVotes()
 	g.serverMessage("Game has been reset back to lobby, admin can restart the game")
 }
@@ -309,7 +319,7 @@ func (g *game) checkVictory() bool {
 	// count alivePlayers
 	alivePlayers := 0
 	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Faction != "ghost" && g.Players[i].Faction != "mafia" {
+		if !g.Players[i].Dead && g.Players[i].Faction != "mafia" {
 			alivePlayers++
 		}
 	}
@@ -332,7 +342,7 @@ func (g *game) startDay() {
 func (g *game) dayDone() bool {
 	everyoneReady := true
 	for i := 0; i < len(g.Players); i++ {
-		if !g.Players[i].Done {
+		if !g.Players[i].Done && !g.Players[i].Spectator {
 			everyoneReady = false
 		}
 	}
@@ -343,7 +353,7 @@ func (g *game) dayDone() bool {
 	// count alivePlayers
 	alivePlayers := 0
 	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Faction != "ghost" {
+		if !g.Players[i].Dead {
 			alivePlayers++
 		}
 	}
@@ -366,7 +376,7 @@ func (g *game) dayDone() bool {
 	}
 
 	toBeKilled := mostVotes[rand.Intn(len(mostVotes))]
-	toBeKilled.Faction = "ghost"
+	toBeKilled.Dead = true
 	g.serverMessage(toBeKilled.Name + " was lynched by an angry mob!")
 
 	return true
@@ -377,7 +387,7 @@ func (g *game) startNight() {
 	g.StateTime = time.Now()
 	g.zeroVotes()
 	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Faction == "villager" || g.Players[i].Faction == "ghost" {
+		if g.Players[i].Faction == "villager" || g.Players[i].Dead {
 			g.Players[i].Done = true
 		}
 	}
@@ -422,7 +432,7 @@ func (g *game) nightDone() bool {
 			}
 			if !playerProtected {
 				g.serverMessage(g.Players[i].Name + " has been found dead.")
-				g.Players[i].Faction = "ghost"
+				g.Players[i].Dead = true
 				return true
 			} else {
 				g.serverMessage("No one died last night.")
@@ -437,7 +447,7 @@ func (g *game) nightDone() bool {
 func (g *game) countFaction(f string) int {
 	c := 0
 	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Faction == f {
+		if g.Players[i].Faction == f && !g.Players[i].Dead && !g.Players[i].Spectator {
 			c++
 		}
 	}
@@ -472,16 +482,15 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
 		p.Faction = "villager"
-	} else if g.State == "day" {
+		p.Dead = false
+		p.Spectator = false
+	} else if g.State == "day" || g.State == "night" {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
-		p.Faction = "ghost"
+		p.Faction = "spectator"
 		p.Done = true
-	} else if g.State == "night" {
-		p.Name = msg.Data.Name
-		p.Password = msg.Data.Password
-		p.Faction = "ghost"
-		p.Done = true
+		p.Dead = false
+		p.Spectator = true
 	}
 	g.addPlayer(p)
 	return nil

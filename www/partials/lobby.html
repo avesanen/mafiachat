@@ -1,7 +1,7 @@
 <div class="clearfix">
     <h1 class="pull-left">{{game.name}}</h1>
 
-    <div ng-if="game.myPlayer.admin && game.state == 'lobby'" class="pull-left startGameBtn">
+    <div ng-if="game.myPlayer.admin && ( game.state == 'lobby' || game.state == 'debrief' )" class="pull-left startGameBtn">
         <button ng-click="startGame()" tooltip-trigger="mouseenter" tooltip-placement="right" tooltip="{{game.players.length < minPlayers ? 'Not enough players' : ''}}" class="btn btn-success">Start game</button>
     </div>
 
