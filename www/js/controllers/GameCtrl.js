@@ -80,7 +80,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     };
 
     $scope.contextMenuAvailable = function() {
-        // Doctors can heal themselves
+        // Only doctors can heal themselves
         if (this.player.name == $scope.game.myPlayer.name && $scope.game.myPlayer.faction != 'doctor') {
             return false;
         }
@@ -90,8 +90,8 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
             return false;
         }
 
-        // Ghosts can't do anything
-        if ($scope.game.myPlayer.faction == 'ghost' || this.player.faction == 'ghost') {
+        // Ghosts and spectators can't do anything
+        if ($scope.game.myPlayer.faction == 'ghost' || $scope.game.myPlayer.faction == 'spectator' || this.player.faction == 'spectator' || this.player.faction == 'ghost') {
             return false;
         }
 
@@ -101,7 +101,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
         }
 
         // If myPlayer is cop and player is already identified
-        if ($scope.game.state == 'night' && $scope.game.myPlayer.faction == 'cop' && this.player.faction != 'unknown') {
+        if ($scope.game.state == 'night' && $scope.game.myPlayer.faction == 'cop' && $scope.game.myPlayer.done) {
             return false;
         }
 

@@ -23,7 +23,7 @@
             ng-repeat="player in game.players">
             <div class="playerName btn-group dropdown-toggle">
                 {{player.name}}<span ng-if="contextMenuAvailable()" class="playerContextMenuCaret caret pull-right"></span>
-                <span ng-show="player.votes > 0" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
+                <span ng-show="(player.votes > 0 && game.state == 'day') || !factionHidden" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
                 <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.online, 'player-state-offline': !player.online}"></span>
 
                 <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.done, 'player-state-offline': !player.done}"></span>
