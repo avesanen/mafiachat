@@ -352,11 +352,12 @@ func (g *game) dayDone() bool {
 
 	majorityVoted := false
 	for i := range g.Players {
-		if g.Players[i].Votes > alivePlayers/2 {
+		if g.Players[i].Votes > int(alivePlayers/2) {
 			majorityVoted = true
 		}
 	}
-	if majorityVoted == false {
+
+	if !majorityVoted && time.Since(g.StateTime) < StateTimeout {
 		return false
 	}
 
