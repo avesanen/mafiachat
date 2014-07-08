@@ -72,7 +72,7 @@ func (g *game) addPlayer(p *player) {
 // Remove player from game
 func (g *game) rmPlayer(p *player) {
 	// If game is at lobby, remove the player completely (also freeing up the name).
-	if g.State == "lobby" || p.Spectator {
+	if g.State == "lobby" || g.State == "debrief" || p.Spectator {
 		for i := range g.Players {
 			if g.Players[i] == p && !p.Admin {
 				g.Players = append(g.Players[:i], g.Players[i+1:]...)
@@ -261,10 +261,23 @@ func (g *game) checkCycle() {
 }
 
 func (g *game) startGame() {
+	g.State = "lobby"
+
+	players := g.Players
+	for i := range players {
+		if players[i].State == "offline" {
+			plr, err := g.getPlayerByName(players[i].Name)
+			if err == nil {
+				g.rmPlayer(plr)
+			}
+		}
+	}
+
 	if len(g.Players) < 5 {
 		g.serverMessage("Can't start game with less than 5 players.")
 		return
 	}
+
 	for i := 0; i < len(g.Players); i++ {
 		g.Players[i].Faction = "villager"
 		g.Players[i].Spectator = false
@@ -302,11 +315,6 @@ func (g *game) startGame() {
 
 func (g *game) endGame() {
 	g.State = "debrief"
-	for i := range g.Players {
-		if g.Players[i].State == "offline" {
-			g.rmPlayer(g.Players[i])
-		}
-	}
 	g.zeroVotes()
 	g.serverMessage("Game has been reset back to lobby, admin can restart the game")
 }
@@ -484,6 +492,7 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 		p.Faction = "villager"
 		p.Dead = false
 		p.Spectator = false
+		p.State = "online"
 	} else if g.State == "day" || g.State == "night" {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
@@ -491,6 +500,7 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 		p.Done = true
 		p.Dead = false
 		p.Spectator = true
+		p.State = "online"
 	}
 	g.addPlayer(p)
 	return nil
