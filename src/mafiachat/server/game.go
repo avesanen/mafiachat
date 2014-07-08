@@ -405,7 +405,7 @@ func (g *game) startNight() {
 func (g *game) nightDone() bool {
 	everyoneReady := true
 	for i := 0; i < len(g.Players); i++ {
-		if !g.Players[i].Done {
+		if !g.Players[i].Done && !g.Players[i].Dead {
 			everyoneReady = false
 		}
 	}

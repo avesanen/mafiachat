@@ -8,18 +8,18 @@ import (
 type player struct {
 	Id                string      `json:"id"`
 	Name              string      `json:"name"`
-	Password          string      `json:"-"`
+	Password          string      `json:"password"`
 	State             string      `json:"state"`
-	Faction           string      `json:"-"`
+	Faction           string      `json:"faction"`
 	Connection        *connection `json:"-"`
 	Votes             int         `json:"votes"`
 	VotingFor         *player     `json:"-"`
 	Protecting        *player     `json:"-"`
 	Admin             bool        `json:"admin"`
 	IdentifiedPlayers []*player   `json:"-"`
-	Done              bool        `json:"-"`
+	Done              bool        `json:"done"`
 	Dead              bool        `json:"dead"`
-	Spectator         bool        `json:"dead"`
+	Spectator         bool        `json:"spectator"`
 	PlayerIntel       []struct {
 		Name    string `json:"name"`
 		Faction string `json:"faction"`
