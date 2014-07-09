@@ -16,10 +16,10 @@
                         <dd>{{game.doctors || '?'}}</dd>
                     </dl>
 
-                    <input ng-show="game.password != ''" ng-change="gameAuth()" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
+                    <input ng-show="game.passwordRequired" type="password" ng-model="gamePassword" class="form-control" placeholder="Password">
                 </p>
                 <div class="clearfix">
-                    <button ng-disabled="game.password != '' && invalidPass" ng-click="joinGame()" class="btn btn-success pull-right">Join game</button>
+                    <button ng-click="joinGame()" class="btn btn-success pull-right">Join game</button>
                 </div>
                 <div ng-show="errorMsg" class="gameAuthError alert alert-danger">{{errorMsg}}</div>
             </div>
