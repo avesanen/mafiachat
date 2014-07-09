@@ -307,6 +307,9 @@ func (g *game) startGame() {
 }
 
 func (g *game) endGame() {
+	for i := range g.Players {
+		g.Players[i].Dead = false
+	}
 	g.State = "debrief"
 	g.zeroVotes()
 	g.serverMessage("Game has been reset back to lobby, admin can restart the game")
