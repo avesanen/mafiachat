@@ -122,7 +122,13 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
 	}
 	
 	$scope.hideFactionIcons = function() {
-		$scope.factionHidden = "hidden";
+        if ($scope.game.state == 'night' || $scope.game.state == 'day') {
+		    $scope.factionHidden = "hidden";
+        }
 	}
+
+    $scope.openContextMenu = function() {
+        $scope.contextMenuForPlayer = this.player.name.replace(/ /g, '');
+    }
 }]);
 
