@@ -6,20 +6,20 @@ import (
 )
 
 type player struct {
-	Id                string      `json:"id"`
+	Id                string      `json:"-"`
 	Name              string      `json:"name"`
-	Password          string      `json:"password"`
-	State             string      `json:"state"`
-	Faction           string      `json:"faction"`
+	Password          string      `json:"-"`
+	State             string      `json:"-"`
+	Faction           string      `json:"-"`
 	Connection        *connection `json:"-"`
-	Votes             int         `json:"votes"`
+	Votes             int         `json:"-"`
 	VotingFor         *player     `json:"-"`
 	Protecting        *player     `json:"-"`
-	Admin             bool        `json:"admin"`
+	Admin             bool        `json:"-"`
 	IdentifiedPlayers []*player   `json:"-"`
-	Done              bool        `json:"done"`
-	Dead              bool        `json:"dead"`
-	Spectator         bool        `json:"spectator"`
+	Done              bool        `json:"-"`
+	Dead              bool        `json:"-"`
+	Spectator         bool        `json:"-"`
 	PlayerIntel       []struct {
 		Name    string `json:"name"`
 		Faction string `json:"faction"`

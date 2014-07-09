@@ -13,10 +13,10 @@ type game struct {
 	State         string         `json:"state"`
 	Id            string         `json:"id"`
 	Name          string         `json:"name"`
-	Password      string         `json:"password"`
+	Password      string         `json:"-"`
 	MessageBuffer []*chatMessage `json:"-"`
 	StateTime     time.Time      `json:"-"`
-	Winner        string         `json:"winner"`
+	Winner        string         `json:"-"`
 }
 
 const (
