@@ -45,6 +45,13 @@ ul.playerContextMenu {
     width: 100%;
 }
 
+span.player-state-done {
+    color: green;
+    margin-top: -18px;
+    margin-right: 20px;
+    float: right;
+}
+
 #playersList ul li.player-state-hidden {
     background: url("../img/player-new.png") no-repeat 5px 50% white;
 }

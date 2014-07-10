@@ -54,7 +54,7 @@ angular.module('mafiachat.controllers').controller('GameCtrl', ['$rootScope', '$
     var sendActionMessage = function(action, playerName) {
         // Close context menu when action is selected
         angular.element(document.getElementById("playerListItem-"+$scope.contextMenuForPlayer)).removeClass("open");
-        
+
         var message = {data:{}};
         message.msgType = 'actionMessage';
         message.data.action = action;
