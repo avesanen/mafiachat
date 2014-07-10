@@ -20,7 +20,7 @@ type game struct {
 }
 
 const (
-	StateTimeout = 15 * time.Second // 10 minute timeout
+	StateTimeout = 15 * time.Minute // 10 minute timeout
 )
 
 // Return a new game
