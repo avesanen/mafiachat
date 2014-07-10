@@ -477,54 +477,7 @@ func (g *game) nightDone() bool {
 			}
 		}
 	}
-
 	return true
-
-	/*
-		everyoneReady := true
-		for i := 0; i < len(g.Players); i++ {
-			if !g.Players[i].Done && !g.Players[i].Dead {
-				everyoneReady = false
-			}
-		}
-
-		// Check if all mafia votes for same person
-		var mafiaVotesFor *player = nil
-		for i := range g.Players {
-			if g.Players[i].Faction == "mafia" {
-				if g.Players[i].VotingFor != mafiaVotesFor && mafiaVotesFor != nil {
-					everyoneReady = false
-				}
-				mafiaVotesFor = g.Players[i].VotingFor
-			}
-		}
-
-		if !everyoneReady && time.Since(g.StateTime) < StateTimeout {
-			return false
-		}
-
-		mafiosos := g.countFaction("mafia")
-
-		for i := 0; i < len(g.Players); i++ {
-			if g.Players[i].Votes == mafiosos {
-				playerProtected := false
-				for j := 0; j < len(g.Players); j++ {
-					if g.Players[j].Protecting == g.Players[i] {
-						playerProtected = true
-					}
-				}
-				if !playerProtected {
-					g.serverMessage(g.Players[i].Name + " has been found dead.")
-					g.Players[i].Dead = true
-					return true
-				} else {
-					g.serverMessage("No one died last night.")
-					return true
-				}
-			}
-		}
-		g.serverMessage("The dawn breaks without victims.")
-		return true*/
 }
 
 func (g *game) loginMessage(msg *loginMessage, p *player) error {
