@@ -20,7 +20,7 @@ type game struct {
 }
 
 const (
-	StateTimeout = 15 * time.Minute // 10 minute timeout
+	StateTimeout = 15 * time.Second // 10 minute timeout
 )
 
 // Return a new game
@@ -197,9 +197,6 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			}
 			if p.VotingFor != nil {
 				p.VotingFor.Votes--
-				//g.serverMessage(p.Name + " changes vote to " + t.Name + ".")
-			} else {
-				//g.serverMessage(p.Name + " votes for " + t.Name + ".")
 			}
 			p.VotingFor = t
 			p.VotingFor.Votes++
@@ -210,20 +207,23 @@ func (g *game) actionMessage(msg *actionMessage, p *player) {
 			if err != nil {
 				return
 			}
-			//g.serverMessage(p.Name + " is now protecting " + t.Name + ".")
-			p.Protecting = t
+			if p.VotingFor != nil {
+				p.VotingFor.Votes--
+			}
+			p.VotingFor = t
+			p.VotingFor.Votes++
 			p.Done = true
 		}
 		if msg.Data.Action == "identify" && p.Faction == "cop" {
-			if p.Done {
-				return
-			}
 			t, err := g.getPlayerByName(msg.Data.Target)
 			if err != nil {
 				return
 			}
-			//g.serverMessage(p.Name + " identified " + t.Name + ".")
-			p.IdentifiedPlayers = append(p.IdentifiedPlayers, t)
+			if p.VotingFor != nil {
+				p.VotingFor.Votes--
+			}
+			p.VotingFor = t
+			p.VotingFor.Votes++
 			p.Done = true
 		}
 		g.checkCycle()
@@ -343,48 +343,70 @@ func (g *game) startDay() {
 	g.zeroVotes()
 }
 
-// dayDone will check if someone has majority vote, execute that player
-// and return true so the night can begin.
-func (g *game) dayDone() bool {
+// countVotesFor takes faction as a string, and returns the leading player of the vote
+// if the faction is villager, all votes are counted.
+func (g *game) countVotesFor(f string) ([]*player, int) {
+	players := make([]*player, 0)
+	maxVotes := 0
+	for i := range g.Players {
+		if !g.Players[i].Dead && !g.Players[i].Spectator {
+			votes := 0
+			for j := range g.Players {
+				if !g.Players[i].Dead && !g.Players[i].Spectator &&
+					(g.Players[j].Faction == f || f == "villager") &&
+					g.Players[j].VotingFor == g.Players[i] {
+					votes++
+				}
+			}
+			if votes > maxVotes {
+				players = []*player{g.Players[i]}
+				maxVotes = votes
+			} else if votes == maxVotes {
+				players = append(players, g.Players[i])
+			}
+		}
+	}
+	return players, maxVotes
+}
+
+// countFaction returns the number of players alive
+func (g *game) alivePlayers() int {
 	alivePlayers := 0
 	for i := 0; i < len(g.Players); i++ {
 		if !g.Players[i].Dead && !g.Players[i].Spectator {
 			alivePlayers++
 		}
 	}
+	return alivePlayers
+}
 
-	majorityVoted := false
-	for i := range g.Players {
-		if g.Players[i].Votes > int(alivePlayers/2) {
-			majorityVoted = true
+// countFaction returns the number of players in the faction
+func (g *game) countFaction(f string) int {
+	factionPlayers := 0
+	for i := 0; i < len(g.Players); i++ {
+		if !g.Players[i].Dead && !g.Players[i].Spectator && g.Players[i].Faction == f {
+			factionPlayers++
 		}
 	}
+	return factionPlayers
+}
 
-	if !majorityVoted && time.Since(g.StateTime) < StateTimeout {
+// dayDone will check if someone has majority vote, execute that player
+// and return true so the night can begin.
+func (g *game) dayDone() bool {
+	plr, vts := g.countVotesFor("villager")
+	if vts <= g.alivePlayers()/2 && time.Since(g.StateTime) < StateTimeout {
 		return false
 	}
 
-	mostVotes := make([]*player, 0)
-	votesCount := 0
-
-	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Votes > votesCount {
-			mostVotes = []*player{g.Players[i]}
-			votesCount = g.Players[i].Votes
-		} else if g.Players[i].Votes == votesCount {
-			mostVotes = append(mostVotes, g.Players[i])
-		}
-	}
-
-	if votesCount == 0 {
+	if vts == 0 {
 		g.serverMessage("Villages didn't vote, nobody dies.")
 		return true
 	}
 
-	toBeKilled := mostVotes[rand.Intn(len(mostVotes))]
+	toBeKilled := plr[rand.Intn(len(plr))]
 	toBeKilled.Dead = true
 	g.serverMessage(toBeKilled.Name + " was lynched by an angry mob!")
-
 	return true
 }
 
@@ -400,60 +422,109 @@ func (g *game) startNight() {
 }
 
 func (g *game) nightDone() bool {
-	everyoneReady := true
-	for i := 0; i < len(g.Players); i++ {
-		if !g.Players[i].Done && !g.Players[i].Dead {
-			everyoneReady = false
-		}
-	}
+	mafiaQuorum := true
+	doctorQuorum := true
+	copQuorum := true
 
-	// Check if all mafia votes for same person
-	var mafiaVotesFor *player = nil
-	for i := range g.Players {
-		if g.Players[i].Faction == "mafia" {
-			if g.Players[i].VotingFor != mafiaVotesFor && mafiaVotesFor != nil {
-				everyoneReady = false
-			}
-			mafiaVotesFor = g.Players[i].VotingFor
-		}
-	}
+	var mafiaTarget *player = nil
+	var doctorTarget *player = nil
+	var copTarget *player = nil
 
-	if !everyoneReady && time.Since(g.StateTime) < StateTimeout {
+	plr, vts := g.countVotesFor("mafia")
+	if vts <= g.countFaction("mafia")/2 && time.Since(g.StateTime) < StateTimeout {
+		mafiaQuorum = false
+	}
+	if len(plr) != 0 && vts > 0 {
+		mafiaTarget = plr[rand.Intn(len(plr))]
+	}
+	log.Println("mafia votes", vts)
+
+	plr, vts = g.countVotesFor("doctor")
+	if vts <= g.countFaction("doctor")/2 && time.Since(g.StateTime) < StateTimeout {
+		doctorQuorum = false
+	}
+	if len(plr) != 0 && vts > 0 {
+		doctorTarget = plr[rand.Intn(len(plr))]
+	}
+	log.Println("doctor votes", vts)
+
+	plr, vts = g.countVotesFor("cop")
+	if vts <= g.countFaction("cop")/2 && time.Since(g.StateTime) < StateTimeout {
+		copQuorum = false
+	}
+	if len(plr) != 0 && vts > 0 {
+		copTarget = plr[rand.Intn(len(plr))]
+	}
+	log.Println("cop votes", vts)
+
+	log.Println(mafiaQuorum, doctorQuorum, copQuorum)
+	log.Println(mafiaTarget, doctorTarget, copTarget)
+	if (!mafiaQuorum || !doctorQuorum || !copQuorum) && time.Since(g.StateTime) < StateTimeout {
 		return false
 	}
 
-	mafiosos := g.countFaction("mafia")
+	if mafiaTarget != nil && doctorTarget != mafiaTarget {
+		g.serverMessage(mafiaTarget.Name + " was found dead.")
+		mafiaTarget.Dead = true
+	} else {
+		g.serverMessage("Night ends without casualties.")
+	}
 
-	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Votes == mafiosos {
-			playerProtected := false
-			for j := 0; j < len(g.Players); j++ {
-				if g.Players[j].Protecting == g.Players[i] {
-					playerProtected = true
+	if copTarget != nil {
+		for i := range g.Players {
+			if g.Players[i].Faction == "cop" {
+				g.Players[i].IdentifiedPlayers = append(g.Players[i].IdentifiedPlayers, copTarget)
+			}
+		}
+	}
+
+	return true
+
+	/*
+		everyoneReady := true
+		for i := 0; i < len(g.Players); i++ {
+			if !g.Players[i].Done && !g.Players[i].Dead {
+				everyoneReady = false
+			}
+		}
+
+		// Check if all mafia votes for same person
+		var mafiaVotesFor *player = nil
+		for i := range g.Players {
+			if g.Players[i].Faction == "mafia" {
+				if g.Players[i].VotingFor != mafiaVotesFor && mafiaVotesFor != nil {
+					everyoneReady = false
+				}
+				mafiaVotesFor = g.Players[i].VotingFor
+			}
+		}
+
+		if !everyoneReady && time.Since(g.StateTime) < StateTimeout {
+			return false
+		}
+
+		mafiosos := g.countFaction("mafia")
+
+		for i := 0; i < len(g.Players); i++ {
+			if g.Players[i].Votes == mafiosos {
+				playerProtected := false
+				for j := 0; j < len(g.Players); j++ {
+					if g.Players[j].Protecting == g.Players[i] {
+						playerProtected = true
+					}
+				}
+				if !playerProtected {
+					g.serverMessage(g.Players[i].Name + " has been found dead.")
+					g.Players[i].Dead = true
+					return true
+				} else {
+					g.serverMessage("No one died last night.")
+					return true
 				}
 			}
-			if !playerProtected {
-				g.serverMessage(g.Players[i].Name + " has been found dead.")
-				g.Players[i].Dead = true
-				return true
-			} else {
-				g.serverMessage("No one died last night.")
-				return true
-			}
 		}
-	}
-	g.serverMessage("The dawn breaks without victims.")
-	return true
-}
-
-func (g *game) countFaction(f string) int {
-	c := 0
-	for i := 0; i < len(g.Players); i++ {
-		if g.Players[i].Faction == f && !g.Players[i].Dead && !g.Players[i].Spectator {
-			c++
-		}
-	}
-	return c
+		g.serverMessage("The dawn breaks without victims.")
+		return true*/
 }
 
 func (g *game) loginMessage(msg *loginMessage, p *player) error {

@@ -56,7 +56,7 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		gi.TimeLeft = 0
 	}
 	// Generate player facts
-	for i := 0; i < len(g.Players); i++ {
+	for i := range g.Players {
 		pi := &playerInfo{}
 		pi.Name = g.Players[i].Name
 		pi.Dead = g.Players[i].Dead
@@ -111,14 +111,17 @@ func getGameInfo(g *game, p *player) *gameInfo {
 		pi.Done = playerDone
 
 		// Generate shown votes fact
+		votes := 0
+		for j := range g.Players {
+			if g.Players[j].VotingFor == g.Players[i] &&
+				(g.Players[j].Faction == p.Faction || g.State == "day") {
+				votes++
+			}
+		}
 		if p.Spectator {
 			pi.Votes = 0
-		} else if g.State == "night" && p.Faction == "mafia" {
-			pi.Votes = g.Players[i].Votes
-		} else if g.State == "day" {
-			pi.Votes = g.Players[i].Votes
 		} else {
-			pi.Votes = 0
+			pi.Votes = votes
 		}
 
 		// Generate myplayer fact
