@@ -29,7 +29,7 @@
                 <span ng-show="(player.votes > 0 && game.state == 'day') || !factionHidden" class="label" ng-class="'label-'+player.voteLevel">{{player.votes}}</span>
                 <span class="glyphicon glyphicon-stop" ng-class="{'player-state-online': player.online, 'player-state-offline': !player.online}"></span>
             </div>
-            <span title="Action done" ng-show="player.done" class="glyphicon glyphicon-ok-sign player-state-done"></span>
+            <span title="Action done" ng-show="player.done && (game.state == 'day' || game.state == 'night')" class="glyphicon glyphicon-ok-sign player-state-done"></span>
             <ul ng-if="contextMenuAvailable()" class="playerContextMenu dropdown-menu" role="menu">
                 <li ng-if="game.myPlayer.name != player.name && game.state == 'day'"><a href ng-click="vote(player)">Vote</a></li>
                 <li ng-if="game.myPlayer.faction == 'mafia' && game.state == 'night'"><a href ng-click="vote(player)">Kill</a></li>
