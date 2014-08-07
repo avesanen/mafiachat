@@ -19,6 +19,38 @@ angular.module('mafiachat.services').factory('ResponseHandler', ['$q', '$rootSco
                 } else {
                     $scope.factionHidden = "hidden";
                 }
+
+                $rootScope.title = 'Mafioso - ' + $scope.game.state;
+                if ($scope.currentState != $scope.game.state) {
+
+                    var msg = " ";
+                    if ($scope.game.state == 'night') {
+                        msg = "Night has fallen!";
+                    } else if ($scope.game.state == 'day') {
+                        msg = "A new day has begun!";
+                    } else if ($scope.game.state == 'villager-win' || $scope.game.state == 'mafia-win') {
+                        msg = "Game has ended!";
+                    }
+
+                    var newExcitingAlerts = (function () {
+                    var timeoutId;
+                    var blink = function() { document.title = document.title == $rootScope.title ? msg : $rootScope.title; };
+                    var clear = function() {
+                        clearInterval(timeoutId);
+                        document.title = $rootScope.title;
+                        window.onmousemove = null;
+                        timeoutId = null;
+                    };
+                    return function () {
+                        if (!timeoutId) {
+                            timeoutId = setInterval(blink, 1000);
+                            window.onmousemove = clear;
+                        }
+                    };
+                    }());
+                    newExcitingAlerts();
+                    $scope.currentState = $scope.game.state;
+                }
         }
 
         if ($scope) {

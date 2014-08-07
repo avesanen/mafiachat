@@ -27,6 +27,8 @@ app.config(['$routeProvider', function($routeProvider) {
 .run(function($rootScope, $location, $window) {
     configConstants($rootScope);
 
+    $rootScope.title = "Mafioso";
+
     if ($location.absUrl().indexOf("/g/") > 0) {
         $location.path("/game");
     }
