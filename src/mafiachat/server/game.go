@@ -285,7 +285,6 @@ func (g *game) startGame() {
 		g.Players[1].Faction = "mafia"
 		g.Players[2].Faction = "cop"
 		g.Players[3].Faction = "doctor"
-		g.Players[4].Faction = "doctor"
 	} else {
 		g.Players[0].Faction = "mafia"
 		g.Players[1].Faction = "mafia"
@@ -431,7 +430,7 @@ func (g *game) nightDone() bool {
 	var copTarget *player = nil
 
 	plr, vts := g.countVotesFor("mafia")
-	if vts <= g.countFaction("mafia")/2 && time.Since(g.StateTime) < StateTimeout {
+	if vts <= g.countFaction("mafia")/2 && g.countFaction("mafia") > 0 {
 		mafiaQuorum = false
 	}
 	if len(plr) != 0 && vts > 0 {
@@ -440,7 +439,7 @@ func (g *game) nightDone() bool {
 	log.Println("mafia votes", vts)
 
 	plr, vts = g.countVotesFor("doctor")
-	if vts <= g.countFaction("doctor")/2 && time.Since(g.StateTime) < StateTimeout {
+	if vts <= g.countFaction("doctor")/2 && g.countFaction("doctor") > 0 {
 		doctorQuorum = false
 	}
 	if len(plr) != 0 && vts > 0 {
@@ -449,7 +448,7 @@ func (g *game) nightDone() bool {
 	log.Println("doctor votes", vts)
 
 	plr, vts = g.countVotesFor("cop")
-	if vts <= g.countFaction("cop")/2 && time.Since(g.StateTime) < StateTimeout {
+	if vts <= g.countFaction("cop")/2 && g.countFaction("cop") > 0 {
 		copQuorum = false
 	}
 	if len(plr) != 0 && vts > 0 {
