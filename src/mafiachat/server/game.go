@@ -502,7 +502,7 @@ func (g *game) loginMessage(msg *loginMessage, p *player) error {
 		}
 	}
 	// New player
-	if g.State == "lobby" {
+	if g.State == "lobby" || g.state == "debrief" {
 		p.Name = msg.Data.Name
 		p.Password = msg.Data.Password
 		p.Faction = "villager"
